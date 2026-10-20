@@ -148,6 +148,27 @@
       "licence": "unpublished"
     },
     {
+      "name": "3mf",
+      "origin": "https://3mf.webcli.app/",
+      "role": "GLB to 3MF converter with colour-based material segmentation, for multi-material 3D printing.",
+      "inputs": ["GLB file chosen on the device"],
+      "outputs": ["3MF file (download)", "GLB with a baked colour map (download)"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:jsdelivr", "code:cdnjs"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet.",
+      "source": "https://github.com/tejaswigowda/3mf-webCLI",
+      "source_status": "public",
+      "licence": "GPL-3.0"
+    },
+    {
       "name": "posecast",
       "origin": "https://posecast.webcli.app/",
       "role": "Live body-pose stream from a camera to a websocket.",
