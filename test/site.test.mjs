@@ -110,6 +110,11 @@ test('the schema rejects a manifest that overpromises', () => {
   assert.equal(mutate(d => { d.tools[0].fetches = ['code:somewhere else']; }), false, 'fetches vocabulary');
   assert.equal(mutate(d => { d.tools[0].agent = true; }), false, 'agent:true needs params and a result');
   assert.equal(mutate(d => { d.tools[0].deterministic = 'maybe'; }), false);
+  assert.equal(mutate(d => { d.tools.find(t => t.licence === 'unpublished').licence = null; }), false, 'licence is a string, never null');
+  assert.equal(mutate(d => { d.tools.find(t => t.source_status !== 'public').source_status = 'public'; }), false, 'public needs a source url');
+  assert.equal(mutate(d => { d.tools.find(t => t.source_status === 'public').source = null; }), false, 'a null source needs a non-public status');
+  assert.equal(mutate(d => { delete d.tools.find(t => t.kind === 'stream').endpoint; }), false, 'a stream says where it goes');
+  assert.equal(mutate(d => { d.tools.find(t => t.kind === 'artifact').endpoint = { set_by: 'user', default: 'local' }; }), false, 'only streams have an endpoint');
   assert.equal(mutate(() => {}), true, 'unmodified manifest is valid');
 });
 
@@ -145,4 +150,12 @@ test('no build step: no bundler config, no lockfile-driven runtime deps', () => 
   const pkg = JSON.parse(read('package.json'));
   assert.deepEqual(Object.keys(pkg.dependencies ?? {}), []);
   assert.ok(!pkg.scripts?.build);
+});
+
+test('machine fields carry the same intent as the page: explicit sentinels, no bare nulls for licence or source', () => {
+  for (const t of data.tools) {
+    assert.equal(typeof t.licence, 'string', t.name);
+    assert.equal(t.source === null, t.source_status !== 'public', t.name);
+  }
+  assert.ok(data.tools.some(t => t.licence === 'unpublished'));
 });

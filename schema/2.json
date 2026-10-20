@@ -69,7 +69,7 @@
     "tool": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "origin", "role", "inputs", "outputs", "params", "result", "testids", "agent", "status", "kind", "egress", "fetches", "fetches_optional", "deterministic", "caveat", "source", "licence"],
+      "required": ["name", "origin", "role", "inputs", "outputs", "params", "result", "testids", "agent", "status", "kind", "egress", "fetches", "fetches_optional", "deterministic", "caveat", "source", "source_status", "licence"],
       "properties": {
         "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
         "origin": { "type": "string", "pattern": "^https://[^/]+/$" },
@@ -118,7 +118,15 @@
         "deterministic": { "enum": ["verified", "unverified", "n/a"], "description": "verified: same inputs, same bytes, checked by test. unverified: not claimed. n/a: a stream." },
         "caveat": { "type": ["string", "null"] },
         "source": { "type": ["string", "null"], "pattern": "^https://" },
-        "licence": { "type": ["string", "null"] },
+        "source_status": { "enum": ["public", "private", "unpublished"], "description": "public: source is a public repository. Otherwise source is null and this says why." },
+        "licence": { "type": "string", "minLength": 1, "description": "An SPDX id, or the sentinel \"unpublished\" when no licence has been published." },
+        "endpoint": {
+          "description": "Stream tools only: where the stream goes.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["set_by", "default"],
+          "properties": { "set_by": { "enum": ["user"] }, "default": { "enum": ["local"] } }
+        },
         "licence_note": { "type": "string" }
       },
       "allOf": [
@@ -129,8 +137,13 @@
         },
         {
           "if": { "properties": { "kind": { "const": "stream" } } },
-          "then": { "properties": { "egress": { "const": "stream-to-endpoint" }, "deterministic": { "const": "n/a" } } },
-          "else": { "properties": { "egress": { "const": "none" }, "deterministic": { "enum": ["verified", "unverified"] } } }
+          "then": { "required": ["endpoint"], "properties": { "egress": { "const": "stream-to-endpoint" }, "deterministic": { "const": "n/a" } } },
+          "else": { "not": { "required": ["endpoint"] }, "properties": { "egress": { "const": "none" }, "deterministic": { "enum": ["verified", "unverified"] } } }
+        },
+        {
+          "if": { "properties": { "source_status": { "const": "public" } } },
+          "then": { "properties": { "source": { "type": "string" } } },
+          "else": { "properties": { "source": { "type": "null" } } }
         }
       ]
     },

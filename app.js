@@ -31,7 +31,8 @@ function row(dl, label, node) {
 const fetchText = list => (list === null ? 'not audited yet' : list.length ? list.join(', ') : 'nothing');
 const REPRO = { verified: 'same input, same bytes (tested)', unverified: 'not verified', 'n/a': 'n/a (a stream)' };
 
-const licenceText = t => (t.licence ? t.licence + (t.licence_note ? ` (${t.licence_note})` : '') : 'licence: not published yet');
+const licenceText = t => (t.licence === 'unpublished' ? 'licence: not published yet' : t.licence + (t.licence_note ? ` (${t.licence_note})` : ''));
+const SOURCE_STATUS = { private: 'source: private repository', unpublished: 'source: not published yet' };
 
 function card(t) {
   const badge = el('span', { class: 'badge ' + (t.agent ? 'yes' : 'no'), text: t.agent ? 'run= ✓' : 'no run= yet' });
@@ -39,7 +40,7 @@ function card(t) {
   const dl = el('dl');
   row(dl, 'in', document.createTextNode(t.inputs.join('; ')));
   row(dl, 'out', document.createTextNode(t.outputs.join('; ')));
-  row(dl, 'egress', el('span', { class: t.egress === 'none' ? '' : 'caveat', text: t.egress === 'none' ? 'none: your content stays on the device' : 'your content is streamed to an endpoint' }));
+  row(dl, 'egress', el('span', { text: t.egress === 'none' ? 'none: your content stays on the device' : 'streamed to a websocket URL you supply (default: on your own machine)' }));
   const optional = t.fetches_optional && t.fetches_optional.length ? `; if enabled: ${t.fetches_optional.join(', ')}` : '';
   row(dl, 'fetches', document.createTextNode(fetchText(t.fetches) + optional));
   row(dl, 'repro', document.createTextNode(REPRO[t.deterministic]));
@@ -53,7 +54,7 @@ function card(t) {
   if (t.result) row(dl, 'result', el('code', { 'data-lang': 'js', text: `${t.result.handle} = ${t.result.shape}` }));
   if (t.testids.length) row(dl, 'testids', document.createTextNode(t.testids.join(', ')));
   const meta = el('p', { class: 'meta' },
-    t.source ? link(t.source, 'source') : document.createTextNode('source: not public yet'),
+    t.source ? link(t.source, 'source') : document.createTextNode(SOURCE_STATUS[t.source_status]),
     ' · ',
     document.createTextNode(licenceText(t)));
   const art = el('article', { class: 'tool', 'data-testid': 'tool-' + t.name }, head, el('p', { text: t.role }), dl);
@@ -125,7 +126,7 @@ function render(data) {
   planned.append('.');
 
   renderExample(data);
-  highlight();
+  enhance();
 
   const lic = $('licences');
   lic.replaceChildren(...data.tools.map(t => el('li', {}, el('code', { text: t.name }), ': ', licenceText(t).replace(/^licence: /, ''))));
@@ -134,9 +135,41 @@ function render(data) {
 
 const highlight = () => { if (window.webcliHighlight) window.webcliHighlight(); };
 
+// Wraps each <pre> in a small bar with a Copy button. The button sits outside the <pre>, so the code's text is untouched.
+function addCopyButtons() {
+  for (const pre of document.querySelectorAll('pre:not([data-copy])')) {
+    const code = pre.querySelector('code');
+    if (!code) continue;
+    pre.setAttribute('data-copy', '');
+    const lang = code.getAttribute('data-lang') || 'code';
+    const btn = el('button', { type: 'button', class: 'copy', 'aria-label': `Copy ${lang} code`, 'data-testid': 'copy', text: 'Copy' });
+    const status = el('span', { class: 'copy-status', role: 'status' });
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(code.textContent);
+        status.textContent = 'Copied';
+      } catch {
+        const sel = getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(code);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        status.textContent = 'Press Ctrl/Cmd+C to copy';
+      }
+      setTimeout(() => { status.textContent = ''; }, 2000);
+    });
+    const bar = el('div', { class: 'codebar' }, el('span', { class: 'lang', text: lang }), status, btn);
+    const wrap = el('div', { class: 'codeblock' });
+    pre.replaceWith(wrap);
+    wrap.append(bar, pre);
+  }
+}
+
+const enhance = () => { highlight(); addCopyButtons(); };
+
 async function main() {
   setStatus('running');
-  highlight();
+  enhance();
   try {
     const res = await fetch('tools.json', { method: 'GET', credentials: 'omit' });
     if (!res.ok) throw new Error('tools.json: HTTP ' + res.status);

@@ -80,6 +80,7 @@
       "deterministic": "unverified",
       "caveat": "No run= surface yet.",
       "source": "https://github.com/tejaswigowda/ffmpeg-webCLI",
+      "source_status": "public",
       "licence": "GPL-3.0"
     },
     {
@@ -100,6 +101,7 @@
       "deterministic": "unverified",
       "caveat": "No run= surface yet.",
       "source": "https://github.com/tejaswigowda/whisper-webCLI",
+      "source_status": "public",
       "licence": "GPL-3.0"
     },
     {
@@ -120,6 +122,7 @@
       "deterministic": "unverified",
       "caveat": "No run= surface yet.",
       "source": "https://github.com/tejaswigowda/magick-webCLI",
+      "source_status": "public",
       "licence": "Apache-2.0",
       "licence_note": "magick-wasm, the engine it wraps, is also Apache-2.0"
     },
@@ -141,7 +144,8 @@
       "deterministic": "unverified",
       "caveat": "No run= surface yet; needs WebGPU.",
       "source": "https://github.com/tejaswigowda/chat-webCLI",
-      "licence": null
+      "source_status": "public",
+      "licence": "unpublished"
     },
     {
       "name": "posecast",
@@ -156,11 +160,13 @@
       "status": "live",
       "kind": "stream",
       "egress": "stream-to-endpoint",
+      "endpoint": { "set_by": "user", "default": "local" },
       "fetches": null,
       "fetches_optional": null,
       "deterministic": "n/a",
-      "caveat": "A live stream, not a URL-to-artifact transform: it sends pose data to a websocket endpoint, which is user-data egress by design. Needs a camera. No run= surface.",
+      "caveat": "A live stream, not a URL-to-artifact transform: it streams to a websocket URL you supply, by default on your own machine, so it leaves the device only if you point it off the device. Needs a camera. No run= surface.",
       "source": "https://github.com/posecaster/posecaster",
+      "source_status": "public",
       "licence": "GPL-3.0"
     },
     {
@@ -179,9 +185,10 @@
       "fetches": [],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "caveat": "No run= surface yet; source repository is not public yet.",
+      "caveat": "No run= surface yet; the source repository is private.",
       "source": null,
-      "licence": null
+      "source_status": "private",
+      "licence": "unpublished"
     },
     {
       "name": "bodyrig",
@@ -214,6 +221,7 @@
       "deterministic": "verified",
       "caveat": "Fetches the input URLs you pass, by GET. The in-page assist is off by default; if you turn it on it loads WebLLM from jsDelivr and downloads model weights.",
       "source": "https://github.com/tejaswigowda/bodyrig-webCLI",
+      "source_status": "public",
       "licence": "GPL-3.0"
     }
   ],

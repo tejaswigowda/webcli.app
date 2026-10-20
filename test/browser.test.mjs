@@ -194,7 +194,7 @@ test('cards declare egress and fetches; streams get their own shelf; the agent l
   assert.equal(await page.locator('[data-testid=streams-list] [data-testid^=tool-]').count(), streams.length);
   for (const t of streams) {
     assert.equal(await page.locator(`[data-testid=tools-list] [data-testid=tool-${t.name}]`).count(), 0, `${t.name} is not in the artifact list`);
-    assert.match(await page.textContent(`[data-testid=tool-${t.name}]`), /streamed to an endpoint/);
+    assert.match(await page.textContent(`[data-testid=tool-${t.name}]`), /websocket URL you supply/);
   }
   for (const t of data.tools) {
     const text = await page.textContent(`[data-testid=tool-${t.name}]`);
@@ -206,5 +206,90 @@ test('cards declare egress and fetches; streams get their own shelf; the agent l
   assert.ok(line.includes(`${agents.length} of ${data.tools.length} tools`) && agents.every(t => line.includes(t.name)), line);
   const planned = await page.textContent('[data-testid=planned]');
   assert.match(planned, /glb-fbx.*cloud tier would be non-zero-egress/);
+  await ctx.close();
+});
+
+test('copy buttons: every code block has one, it copies exactly the code, and it falls back when the clipboard is denied', async () => {
+  const ctx = await browser.newContext({ permissions: ['clipboard-read', 'clipboard-write'] });
+  const page = await ctx.newPage();
+  await page.goto(origin + '/');
+  await page.waitForSelector(DONE);
+  const blocks = page.locator('.codeblock');
+  assert.equal(await blocks.count(), 5);
+  assert.equal(await page.locator('pre:not(.codeblock pre)').count(), 0, 'no code block without a copy bar');
+  for (let i = 0; i < 5; i++) {
+    const block = blocks.nth(i);
+    const want = await block.locator('pre code').textContent();
+    await block.locator('button.copy').click();
+    assert.equal(await page.evaluate(() => navigator.clipboard.readText()), want, `block ${i}`);
+    assert.equal(await block.locator('.copy-status').textContent(), 'Copied');
+    const box = await block.locator('button.copy').boundingBox();
+    assert.ok(box.height >= 40 && box.width >= 44, 'tap target');
+  }
+  await ctx.close();
+
+  const denied = await browser.newContext();
+  await denied.addInitScript(() => { Object.defineProperty(navigator, 'clipboard', { value: { writeText: () => Promise.reject(new Error('denied')) } }); });
+  const p2 = await denied.newPage();
+  await p2.goto(origin + '/');
+  await p2.waitForSelector(DONE);
+  await p2.locator('[data-testid=agent-surface]').locator('xpath=..').locator('button.copy').click();
+  assert.match(await p2.locator('[data-testid=agent-surface]').locator('xpath=..').locator('.copy-status').textContent(), /Ctrl\/Cmd\+C/);
+  assert.match(await p2.evaluate(() => getSelection().toString()), /waitForSelector/);
+  await denied.close();
+});
+
+test('layout: the column is centred on a wide screen', async () => {
+  const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  await page.goto(origin + '/');
+  await page.waitForSelector(DONE);
+  const { left, right } = await page.evaluate(() => { const r = document.body.getBoundingClientRect(); return { left: r.left, right: innerWidth - r.right }; });
+  assert.ok(left > 100 && Math.abs(left - right) <= 1, `left ${left}, right ${right}`);
+  await ctx.close();
+});
+
+const lum = ([r, g, b]) => { const f = v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+const ratio = (a, b) => { const [hi, lo] = [lum(a), lum(b)].sort((x, y) => y - x); return (hi + 0.05) / (lo + 0.05); };
+const rgb = c => c.match(/\d+(\.\d+)?/g).slice(0, 3).map(Number);
+
+for (const scheme of ['light', 'dark']) {
+  test(`contrast: text meets WCAG AA (4.5:1) in ${scheme} mode`, async () => {
+    const ctx = await browser.newContext({ colorScheme: scheme });
+    const page = await ctx.newPage();
+    await page.goto(origin + '/');
+    await page.waitForSelector(DONE);
+    const pairs = await page.evaluate(() => {
+      const bgOf = e => { for (let n = e; n; n = n.parentElement) { const c = getComputedStyle(n).backgroundColor; if (c !== 'rgba(0, 0, 0, 0)') return c; } return 'rgb(255,255,255)'; };
+      const out = [];
+      for (const sel of ['.lead', '.tool dt', '.tool .meta', '.caveat', '.badge.no', '.badge.yes', 'a', 'footer', '.codebar .lang', '.copy', 'pre code', 'h2', '.tool p']) {
+        for (const e of document.querySelectorAll(sel)) { out.push([sel, getComputedStyle(e).color, bgOf(e)]); }
+      }
+      for (const e of document.querySelectorAll('pre [class^=tok-]')) out.push(['.' + e.className, getComputedStyle(e).color, bgOf(e)]);
+      return out;
+    });
+    assert.ok(pairs.length > 40);
+    const bad = pairs.filter(([, fg, bg]) => ratio(rgb(fg), rgb(bg)) < 4.5).map(([sel, fg, bg]) => `${sel} ${fg} on ${bg} = ${ratio(rgb(fg), rgb(bg)).toFixed(2)}`);
+    assert.deepEqual([...new Set(bad)], []);
+    await ctx.close();
+  });
+}
+
+test('sentinels render as plain words, posecast states where its stream goes', async () => {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto(origin + '/');
+  await page.waitForSelector(DONE);
+  const mocap = await page.textContent('[data-testid=tool-mocap]');
+  assert.match(mocap, /source: private repository/);
+  assert.match(mocap, /licence: not published yet/);
+  assert.match(await page.textContent('[data-testid=tool-chat]'), /licence: not published yet/);
+  const pc = await page.textContent('[data-testid=tool-posecast]');
+  assert.match(pc, /websocket URL you supply \(default: on your own machine\)/);
+  assert.match(pc, /leaves the device only if you point it off the device/);
+  assert.match(await page.textContent('[data-testid=licences]'), /mocap: not published yet/);
+  // the "only bodyrig" caveat sits directly under the agent-surface heading
+  const next = await page.evaluate(() => document.querySelector('#contract h3').nextElementSibling.id);
+  assert.equal(next, 'agent-status');
   await ctx.close();
 });

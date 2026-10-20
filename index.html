@@ -33,6 +33,7 @@
   <p><strong>URL in, artifact out. GET-only. Zero-egress. No account, no token, no upload.</strong> That is the contract for the artifact tools. An artifact is meant to be a pure function of its input URLs and parameters: that is verified by test for bodyrig (the worked example) and not yet checked for the others, and each card says which.</p>
   <p>Zero-egress means your content is never sent anywhere: no request carries a body, a cookie or a credential. A tool may still <em>fetch</em> static code, model weights or the input URLs you name, by GET; each card lists exactly what under <em>fetches</em>. One live tool is a stream, not an artifact tool. It sits under <a href="#streams">Streams</a>, outside this contract, and declares its own egress.</p>
   <h3>The agent surface</h3>
+  <p id="agent-status" data-testid="agent-status">Not every tool has it yet; each card says whether it does, and <code>agent</code> in <a href="tools.json">tools.json</a> lists which.</p>
   <p>A tool that implements it can be driven with no human in the loop:</p>
   <ul>
     <li><code>run=</code> in the URL query (or <code>#fragment</code>) starts the op as soon as the page loads.</li>
@@ -43,7 +44,6 @@
   <pre data-testid="agent-surface"><code data-lang="js">// wait for the op to finish, then read the handle
 await page.waitForSelector('body[data-webcli-status=done], body[data-webcli-status=error]');
 const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre>
-  <p id="agent-status" data-testid="agent-status">Not every tool has it yet; each card says whether it does, and <code>agent</code> in <a href="tools.json">tools.json</a> lists which.</p>
 </section>
 
 <section id="tools">
@@ -93,7 +93,7 @@ curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .orig
 
 <section id="privacy">
   <h2>Privacy and licences</h2>
-  <p>The artifact tools process what you give them on your device: they do not upload it, need no account and set no tracking identifiers. Each tool's <code>egress</code> and <code>fetches</code> say exactly what it contacts; some load code or model weights by GET on first use. The stream tool, posecast, sends pose data to a websocket endpoint by design, so the zero-egress claim does not cover it; its card says so.</p>
+  <p>The artifact tools process what you give them on your device: they do not upload it, need no account and set no tracking identifiers. Each tool's <code>egress</code> and <code>fetches</code> say exactly what it contacts; some load code or model weights by GET on first use. The stream tool, posecast, sends its stream to a websocket URL you supply, which by default is on your own machine; the zero-egress claim does not cover wherever you point it, and its card says so.</p>
   <p>This page makes no request to any origin but its own, and a Content-Security-Policy enforces that; a CI test loads the page and fails on any other origin.</p>
   <p><strong>How the claim is checked.</strong> For a tool you can use today, <a id="audit-bodyrig" href="https://github.com/tejaswigowda/bodyrig-webCLI#verify-zero-egress" rel="noopener noreferrer">bodyrig explains how to verify zero egress</a> and its test suite asserts it. The worked example of the standard is <a id="audit-facebind" href="https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md" rel="noopener noreferrer">the facebind privacy audit</a>; facebind is not listed above yet because it is moving to its own origin first.</p>
   <p data-testid="egress-exception">One planned tool would have a cloud tier. That is labelled under Planned above, and would be labelled on its card if it ships.</p>
