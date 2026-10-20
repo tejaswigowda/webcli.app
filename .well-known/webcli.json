@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "family": "webCLI",
+  "site": "https://webcli.app/",
+  "updated": "2026-10-19",
+  "contract": {
+    "input": "URL",
+    "output": "artifact",
+    "method": "GET",
+    "egress": "none",
+    "account": false,
+    "run_param": "run",
+    "result_handle": "window.__webcli_result",
+    "status_selector": "[data-webcli-status]",
+    "status_values": ["idle", "running", "done", "error"],
+    "deterministic": true
+  },
+  "audit": {
+    "tool": "facebind",
+    "title": "Face bind: privacy audit (zero egress)",
+    "url": "https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md"
+  },
+  "example": {
+    "tool": "bodyrig",
+    "path": "index.html",
+    "params": {
+      "character": "https://cdn.jsdelivr.net/gh/miver-player/miver.xyz@b5c05aedc7748ef1f8046500f4a8daa953d88166/docs/fbx/xbot.fbx",
+      "motion": "https://cdn.jsdelivr.net/gh/tejaswigowda/bodyrig-webCLI@e2009e5aaebfea4ea694059fb0b317720a3e26e9/docs/samples/mocap-33s.bvh",
+      "run": "bake"
+    },
+    "result": {
+      "ok": true,
+      "op": "bake",
+      "artifact": {
+        "mime": "model/gltf-binary",
+        "name": "xbot_mocap-33s.glb",
+        "size": 946800,
+        "dataUrl": "data:model/gltf-binary;base64,<GLB bytes, elided>"
+      },
+      "error": null,
+      "meta": {
+        "tracks": ["mocap-33s"],
+        "frames": 994,
+        "fps": 30,
+        "mapped": 51,
+        "bones": 52,
+        "units": [{ "name": "mocap-33s", "body": true, "face": null, "head": null }],
+        "blendshapes": null
+      }
+    },
+    "artifact_sha256": "f86a23d52085275d074665cfa9b62ede483d146198e4431199aa3164ee861f20",
+    "verified": "2026-10-19, bodyrig-webCLI @ e2009e5, Chromium, two runs byte-identical"
+  },
+  "tools": [
+    {
+      "name": "ffmpeg",
+      "origin": "https://ffmpeg.webcli.app/",
+      "role": "Media transform: trim, compress, convert, GIF, audio extraction, and raw FFmpeg commands (ffmpeg.wasm).",
+      "inputs": ["video, audio or image file chosen on the device"],
+      "outputs": ["transformed media file (download)"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "caveat": "No run= surface yet; loads ffmpeg.wasm from jsDelivr on first use.",
+      "source": "https://github.com/tejaswigowda/ffmpeg-webCLI",
+      "licence": "GPL-3.0"
+    },
+    {
+      "name": "whisper",
+      "origin": "https://whisper.webcli.app/",
+      "role": "Speech-to-text transcription with Whisper, on the device.",
+      "inputs": ["audio or video file chosen on the device"],
+      "outputs": ["transcript (text, download)"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "caveat": "No run= surface yet; loads Transformers.js from jsDelivr and model weights from Hugging Face on first use.",
+      "source": "https://github.com/tejaswigowda/whisper-webCLI",
+      "licence": "GPL-3.0"
+    },
+    {
+      "name": "posecast",
+      "origin": "https://posecast.webcli.app/",
+      "role": "Live body-pose stream from a camera to a websocket.",
+      "inputs": ["camera"],
+      "outputs": ["pose stream (websocket)"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "caveat": "Needs a camera and a person; a stream, not a URL-to-artifact transform; no run= surface.",
+      "source": "https://github.com/posecaster/posecaster",
+      "licence": "GPL-3.0"
+    },
+    {
+      "name": "mocap",
+      "origin": "https://mocap.webcli.app/",
+      "role": "Motion-capture recorder, body, face or both, from a camera or a local video file (MediaPipe).",
+      "inputs": ["camera or video file chosen on the device"],
+      "outputs": [".bvh", ".blendshapes.json (ARKit-52)", ".glb (both mode)", "session.json"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "caveat": "No run= surface yet; source repository is not public yet.",
+      "source": null,
+      "licence": null
+    },
+    {
+      "name": "bodyrig",
+      "origin": "https://bodyrig.webcli.app/",
+      "role": "Retarget motion onto a character and bake to GLB (body skeleton and face morph targets).",
+      "inputs": [
+        "character: FBX, GLB or VRM URL",
+        "motion: BVH or GLB URL, repeatable",
+        "map: optional bone-map JSON URL"
+      ],
+      "outputs": ["GLB (model/gltf-binary) with the motion baked in"],
+      "params": [
+        { "name": "character", "required": true, "repeatable": false, "description": "URL of the character (FBX, GLB, VRM)." },
+        { "name": "motion", "required": true, "repeatable": true, "description": "URL of a BVH or face-record JSON; repeat for several tracks." },
+        { "name": "map", "required": false, "repeatable": false, "description": "URL of a flat bone-map JSON." },
+        { "name": "args", "required": false, "repeatable": false, "description": "Raw bake flags, e.g. \"--fps 24 --trim 2:10\"." },
+        { "name": "run", "required": false, "repeatable": false, "values": ["bake"], "description": "Start the op as soon as the page loads." }
+      ],
+      "result": {
+        "handle": "window.__webcli_result",
+        "shape": "{ ok, op: 'bake', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { tracks, frames, fps, mapped, bones, units, blendshapes } }"
+      },
+      "testids": ["character-input", "motion-input", "bake", "command", "run", "result", "download"],
+      "agent": true,
+      "status": "live",
+      "caveat": "Fetches the input URLs you pass, by GET; the optional in-page assist (off by default) downloads model weights.",
+      "source": "https://github.com/tejaswigowda/bodyrig-webCLI",
+      "licence": "GPL-3.0"
+    }
+  ],
+  "planned": [
+    { "name": "facebind", "status": "origin-move", "note": "live, expression-bound and photo-informed, not a likeness; moving to its own origin before it is listed" },
+    { "name": "facecast", "status": "decided", "note": "will be built for symmetry with posecast" },
+    { "name": "customizer", "status": "decided", "note": "will be its own webCLI: rig-safe look, wardrobe and expression ops" },
+    { "name": "facebuild", "status": "spec", "note": "image to face GLB with ARKit morphs" },
+    { "name": "facebind-metahuman", "status": "spec", "note": "MetaHuman sibling of facebind, same photo discipline" },
+    { "name": "imagegen", "status": "spec", "note": "on-device asset generation (Qwen-Image, WebGPU); model-licence gated" },
+    { "name": "glb-fbx", "status": "spec", "note": "GLB to FBX via headless Blender, two tiers", "egress": "cloud-tier" }
+  ]
+}
