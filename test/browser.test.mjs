@@ -147,3 +147,38 @@ test('the worked example on the page is built from the data and shows the docume
   assert.deepEqual(JSON.parse(await page.textContent('[data-testid=example-result]')), data.example.result);
   await ctx.close();
 });
+
+test('syntax highlighting: every code block is highlighted and its text is unchanged', async () => {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto(origin + '/');
+  await page.waitForSelector(DONE);
+  const blocks = await page.$$eval('pre code', cs => cs.map(c => ({
+    lang: c.getAttribute('data-lang'), hl: c.getAttribute('data-hl'), tokens: c.querySelectorAll('span[class^=tok-]').length, text: c.textContent,
+  })));
+  assert.ok(blocks.length === 5, 'expected the static and generated code blocks');
+  for (const b of blocks) {
+    assert.ok(b.lang, 'every code block declares a language');
+    assert.equal(b.hl, b.lang, `${b.lang} block was not highlighted`);
+    assert.ok(b.tokens > 0, `${b.lang} block has no tokens`);
+  }
+  const byLang = l => blocks.filter(b => b.lang === l);
+  assert.deepEqual(new Set(blocks.map(b => b.lang)), new Set(['js', 'json', 'bash', 'url']));
+  // the highlighter must not alter what a user would copy
+  assert.deepEqual(JSON.parse(byLang('json')[0].text), data.example.result);
+  assert.match(byLang('url')[0].text, /^https:\/\/bodyrig\.webcli\.app\/index\.html\?character=https:\/\/cdn\.jsdelivr\.net\/gh\/miver-player\/miver\.xyz%40b5c05aed/);
+  const colours = await page.$$eval('code span[class^=tok-]', ss => new Set(ss.map(s => getComputedStyle(s).color)).size);
+  assert.ok(colours >= 4, 'token classes are styled with distinct colours');
+  await ctx.close();
+});
+
+test('highlighting still works when tools.json fails (static blocks)', async () => {
+  const ctx = await browser.newContext();
+  await ctx.route('**/tools.json', r => r.fulfill({ status: 500, body: '' }));
+  const page = await ctx.newPage();
+  await page.goto(origin + '/');
+  await page.waitForSelector(DONE);
+  assert.equal(await page.locator('[data-testid=agent-surface] code[data-hl=js] span[class^=tok-]').count() > 0, true);
+  assert.equal(await page.locator('[data-testid=machine-path] code[data-hl=bash] span[class^=tok-]').count() > 0, true);
+  await ctx.close();
+});

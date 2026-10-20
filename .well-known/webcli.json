@@ -83,6 +83,36 @@
       "licence": "GPL-3.0"
     },
     {
+      "name": "magick",
+      "origin": "https://magick.webcli.app/",
+      "role": "Image editing and conversion with ImageMagick (magick-wasm): 100+ formats, 26 operations, chaining and batch.",
+      "inputs": ["image file or files chosen on the device"],
+      "outputs": ["processed image file (download), or a ZIP for a batch"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "caveat": "No run= surface yet; loads magick-wasm from jsDelivr on first use.",
+      "source": "https://github.com/tejaswigowda/magick-webCLI",
+      "licence": "Apache-2.0"
+    },
+    {
+      "name": "chat",
+      "origin": "https://chat.webcli.app/",
+      "role": "Chat with a large language model that runs in the browser (WebLLM, WebGPU).",
+      "inputs": ["text prompt typed on the device; optional PDF"],
+      "outputs": ["streamed text reply"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "caveat": "No run= surface yet; needs WebGPU; downloads model weights on first use and loads some scripts from jsDelivr.",
+      "source": "https://github.com/tejaswigowda/chat-webCLI",
+      "licence": null
+    },
+    {
       "name": "posecast",
       "origin": "https://posecast.webcli.app/",
       "role": "Live body-pose stream from a camera to a websocket.",

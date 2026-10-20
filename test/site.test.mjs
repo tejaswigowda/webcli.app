@@ -96,7 +96,7 @@ test('page source: no third-party URLs in loaded resources, no inline script/sty
   assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>/);
   assert.doesNotMatch(html, /<style/);
   assert.doesNotMatch(html, /\son[a-z]+=/);
-  for (const f of ['app.js']) assert.doesNotMatch(read(f), /localStorage|sessionStorage|indexedDB|document\.cookie|XMLHttpRequest|WebSocket|sendBeacon|import\s*\(|https?:\/\/(?!json-schema)/, f);
+  for (const f of ['app.js', 'highlight.js']) assert.doesNotMatch(read(f), /localStorage|sessionStorage|indexedDB|document\.cookie|XMLHttpRequest|WebSocket|sendBeacon|import\s*\(|https?:\/\/(?!json-schema)/, f);
   assert.doesNotMatch(read('style.css'), /@import|url\(\s*["']?(https?:)?\/\//);
 });
 

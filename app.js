@@ -41,7 +41,7 @@ function card(t) {
     };
     row(dl, 'params', el('span', {}, ...t.params.flatMap((p, i) => [i ? ' ' : '', el('code', { text: fmt(p) })])));
   }
-  if (t.result) row(dl, 'result', el('code', { text: `${t.result.handle} = ${t.result.shape}` }));
+  if (t.result) row(dl, 'result', el('code', { 'data-lang': 'js', text: `${t.result.handle} = ${t.result.shape}` }));
   if (t.testids.length) row(dl, 'testids', document.createTextNode(t.testids.join(', ')));
   const meta = el('p', { class: 'meta' },
     t.source ? link(t.source, 'source') : document.createTextNode('source: not public yet'),
@@ -89,11 +89,11 @@ function renderExample(data) {
   const box = $('example-body');
   box.replaceChildren(
     el('p', {}, 'Tool: ', el('code', { text: ex.tool }), '. Input: a character and a motion-capture clip, both public and pinned to a commit. The URL starts the bake with ', el('code', { text: 'run=bake' }), ':'),
-    el('pre', { 'data-testid': 'example-url' }, el('code', { class: 'url', text: exampleUrl(data) })),
+    el('pre', { 'data-testid': 'example-url' }, el('code', { class: 'url', 'data-lang': 'url', text: exampleUrl(data) })),
     el('p', { text: 'Run it from a script (Node and Playwright):' }),
-    el('pre', { 'data-testid': 'example-script' }, el('code', { text: exampleScript(data) })),
+    el('pre', { 'data-testid': 'example-script' }, el('code', { 'data-lang': 'js', text: exampleScript(data) })),
     el('p', {}, 'It prints this object (', el('code', { text: 'dataUrl' }), ' is the GLB itself, elided here):'),
-    el('pre', { 'data-testid': 'example-result' }, el('code', { text: JSON.stringify(ex.result, null, 2) })),
+    el('pre', { 'data-testid': 'example-result' }, el('code', { 'data-lang': 'json', text: JSON.stringify(ex.result, null, 2) })),
     el('p', { class: 'meta' }, `The GLB's SHA-256 is ${ex.artifact_sha256}; the same inputs give the same bytes. Last verified: ${ex.verified}.`),
   );
 }
@@ -110,6 +110,7 @@ function render(data) {
   planned.append('.');
 
   renderExample(data);
+  highlight();
 
   const lic = $('licences');
   lic.replaceChildren(...data.tools.map(t => el('li', {}, el('code', { text: t.name }), ': ', t.licence || 'not published yet')));
@@ -119,8 +120,11 @@ function render(data) {
   $('updated').textContent = 'Index updated ' + data.updated;
 }
 
+const highlight = () => { if (window.webcliHighlight) window.webcliHighlight(); };
+
 async function main() {
   setStatus('running');
+  highlight();
   try {
     const res = await fetch('tools.json', { method: 'GET', credentials: 'omit' });
     if (!res.ok) throw new Error('tools.json: HTTP ' + res.status);

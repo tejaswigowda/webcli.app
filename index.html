@@ -11,6 +11,7 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="alternate" type="application/json" href="tools.json" title="webCLI tool index (schema 1)">
 <link rel="stylesheet" href="style.css">
+<script src="highlight.js" defer></script>
 <script src="app.js" defer></script>
 </head>
 <body data-webcli-status="idle">
@@ -39,7 +40,7 @@
     <li><code>[data-webcli-status]</code> on <code>&lt;body&gt;</code> is the state: <code>idle | running | done | error</code>.</li>
     <li>Stable <code>data-testid</code> hooks for the controls, listed on each tool's card.</li>
   </ul>
-  <pre data-testid="agent-surface"><code>// wait for the op to finish, then read the handle
+  <pre data-testid="agent-surface"><code data-lang="js">// wait for the op to finish, then read the handle
 await page.waitForSelector('body[data-webcli-status=done], body[data-webcli-status=error]');
 const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre>
   <p>Not every tool has it yet. Each card says whether it does.</p>
@@ -54,6 +55,8 @@ const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre
       <ul data-testid="noscript-tools">
         <li><a href="https://ffmpeg.webcli.app/">ffmpeg</a>: media transform</li>
         <li><a href="https://whisper.webcli.app/">whisper</a>: speech to text</li>
+        <li><a href="https://magick.webcli.app/">magick</a>: image editing and conversion</li>
+        <li><a href="https://chat.webcli.app/">chat</a>: in-browser LLM chat</li>
         <li><a href="https://posecast.webcli.app/">posecast</a>: live body-pose stream</li>
         <li><a href="https://mocap.webcli.app/">mocap</a>: motion-capture recorder</li>
         <li><a href="https://bodyrig.webcli.app/">bodyrig</a>: retarget and bake to GLB</li>
@@ -73,7 +76,7 @@ const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre
 <section id="machines">
   <h2>For agents and scripts</h2>
   <p>The tool list on this page is rendered from one file. Fetch the same file directly:</p>
-  <pre data-testid="machine-path"><code>curl -s https://webcli.app/tools.json
+  <pre data-testid="machine-path"><code data-lang="bash">curl -s https://webcli.app/tools.json
 curl -s https://webcli.app/.well-known/webcli.json   # identical copy
 curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .origin'</code></pre>
   <p>The file carries <code>"schema": 1</code>. It is validated against <a href="schema/1.json">schema/1.json</a>; a breaking change bumps that number. Every entry in <code>tools</code> is live: <code>origin</code> resolves and <code>source</code> is a public repository, or <code>null</code> when it is not public yet. <code>agent: true</code> means the tool implements <code>run=</code> and the result handle; <code>params</code> and <code>result</code> describe them.</p>

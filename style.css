@@ -9,6 +9,14 @@
   --accent: #0b5cad;
   --ok: #1d6b3a;
   --warn: #8a4b00;
+  --t-com: #5b6168;
+  --t-str: #0a6b3a;
+  --t-num: #9a3b00;
+  --t-kw: #7a2fb5;
+  --t-fn: #0b5cad;
+  --t-key: #0b5cad;
+  --t-lit: #9a3b00;
+  --t-punct: #5b6168;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -21,6 +29,14 @@
     --accent: #7db4f0;
     --ok: #6fcf8f;
     --warn: #e0a860;
+    --t-com: #9aa1a8;
+    --t-str: #8fd19e;
+    --t-num: #f0b27a;
+    --t-kw: #c9a0f5;
+    --t-fn: #7db4f0;
+    --t-key: #7db4f0;
+    --t-lit: #f0b27a;
+    --t-punct: #9aa1a8;
   }
 }
 * { box-sizing: border-box; }
@@ -53,6 +69,14 @@ pre {
   margin: .5rem 0;
 }
 pre code { background: none; padding: 0; }
+.tok-com { color: var(--t-com); font-style: italic; }
+.tok-str { color: var(--t-str); }
+.tok-num { color: var(--t-num); }
+.tok-kw { color: var(--t-kw); }
+.tok-fn, .tok-url { color: var(--t-fn); }
+.tok-key { color: var(--t-key); }
+.tok-lit { color: var(--t-lit); }
+.tok-punct { color: var(--t-punct); }
 .url { overflow-wrap: anywhere; white-space: pre-wrap; }
 .tool {
   background: var(--card);
