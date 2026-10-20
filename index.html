@@ -9,7 +9,7 @@
 <title>webCLI: URL in, artifact out</title>
 <meta name="description" content="A family of browser tools that take a URL and return an artifact. GET-only, zero-egress, no account, drivable from a script.">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="alternate" type="application/json" href="tools.json" title="webCLI tool index (schema 1)">
+<link rel="alternate" type="application/json" href="tools.json" title="webCLI tool index (schema 2)">
 <link rel="stylesheet" href="style.css">
 <script src="highlight.js" defer></script>
 <script src="app.js" defer></script>
@@ -17,12 +17,12 @@
 <body data-webcli-status="idle">
 <header>
   <h1>webCLI</h1>
-  <p class="lead">Browser tools that take a URL and return an artifact. Every request is a GET, nothing you give them leaves your device, and there is no account. Pages that implement the agent surface below can be driven from a script.</p>
+  <p class="lead">Browser tools that take a URL and return an artifact. You open them with a GET and need no account. For the artifact tools your files never leave your device, and you can check that in DevTools; <a href="https://arxiv.org/abs/2608.28950" rel="noopener noreferrer">the paper</a> explains the architecture. Tools that implement the agent surface below can be driven from a script.</p>
   <nav aria-label="Sections">
     <a href="#contract">Contract</a>
     <a href="#tools">Tools</a>
     <a href="#example">Example</a>
-    <a href="#machines">Machines</a>
+    <a href="#agents">Agents and scripts</a>
     <a href="#privacy">Privacy</a>
   </nav>
 </header>
@@ -30,8 +30,8 @@
 <main>
 <section id="contract">
   <h2>The contract</h2>
-  <p><strong>URL in, artifact out. GET-only. Zero-egress. No account, no token, no upload.</strong> Same inputs give the same artifact: the output is a pure function of the input URLs and the parameters.</p>
-  <p>Zero-egress here means your input is never sent anywhere: no request carries a body, a cookie or a credential. A tool may still <em>fetch</em> static code, model weights or the input URLs you name, by GET. Where a tool does, its card says so.</p>
+  <p><strong>URL in, artifact out. GET-only. Zero-egress. No account, no token, no upload.</strong> That is the contract for the artifact tools. An artifact is meant to be a pure function of its input URLs and parameters: that is verified by test for bodyrig (the worked example) and not yet checked for the others, and each card says which.</p>
+  <p>Zero-egress means your content is never sent anywhere: no request carries a body, a cookie or a credential. A tool may still <em>fetch</em> static code, model weights or the input URLs you name, by GET; each card lists exactly what under <em>fetches</em>. One live tool is a stream, not an artifact tool. It sits under <a href="#streams">Streams</a>, outside this contract, and declares its own egress.</p>
   <h3>The agent surface</h3>
   <p>A tool that implements it can be driven with no human in the loop:</p>
   <ul>
@@ -43,7 +43,7 @@
   <pre data-testid="agent-surface"><code data-lang="js">// wait for the op to finish, then read the handle
 await page.waitForSelector('body[data-webcli-status=done], body[data-webcli-status=error]');
 const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre>
-  <p>Not every tool has it yet. Each card says whether it does.</p>
+  <p id="agent-status" data-testid="agent-status">Not every tool has it yet; each card says whether it does, and <code>agent</code> in <a href="tools.json">tools.json</a> lists which.</p>
 </section>
 
 <section id="tools">
@@ -57,9 +57,17 @@ const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre
         <li><a href="https://whisper.webcli.app/">whisper</a>: speech to text</li>
         <li><a href="https://magick.webcli.app/">magick</a>: image editing and conversion</li>
         <li><a href="https://chat.webcli.app/">chat</a>: in-browser LLM chat</li>
-        <li><a href="https://posecast.webcli.app/">posecast</a>: live body-pose stream</li>
         <li><a href="https://mocap.webcli.app/">mocap</a>: motion-capture recorder</li>
         <li><a href="https://bodyrig.webcli.app/">bodyrig</a>: retarget and bake to GLB</li>
+      </ul>
+    </noscript>
+  </div>
+  <h3 id="streams">Streams</h3>
+  <p class="meta">Live streams, not URL-to-artifact tools: outside the contract above. Each declares its own egress.</p>
+  <div id="streams-list" data-testid="streams-list" aria-live="polite">
+    <noscript>
+      <ul data-testid="noscript-streams">
+        <li><a href="https://posecast.webcli.app/">posecast</a>: live body-pose stream to a websocket</li>
       </ul>
     </noscript>
   </div>
@@ -73,20 +81,22 @@ const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre
   </div>
 </section>
 
-<section id="machines">
+<section id="agents">
   <h2>For agents and scripts</h2>
   <p>The tool list on this page is rendered from one file. Fetch the same file directly:</p>
   <pre data-testid="machine-path"><code data-lang="bash">curl -s https://webcli.app/tools.json
 curl -s https://webcli.app/.well-known/webcli.json   # identical copy
 curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .origin'</code></pre>
-  <p>The file carries <code>"schema": 1</code>. It is validated against <a href="schema/1.json">schema/1.json</a>; a breaking change bumps that number. Every entry in <code>tools</code> is live: <code>origin</code> resolves and <code>source</code> is a public repository, or <code>null</code> when it is not public yet. <code>agent: true</code> means the tool implements <code>run=</code> and the result handle; <code>params</code> and <code>result</code> describe them.</p>
+  <p>Every tool declares <code>kind</code> (<code>artifact</code> or <code>stream</code>), <code>egress</code> (whether your content leaves the device), <code>fetches</code> (what it GETs on first use) and <code>deterministic</code>. Only the invariants live in the top-level <code>contract</code>.</p>
+  <p>The file carries <code>"schema": 2</code>. It is validated against <a href="schema/2.json">schema/2.json</a>; a breaking change bumps that number. Schema 1 (<a href="schema/1.json">schema/1.json</a>) had one global <code>egress: "none"</code> claim, which was not true for every tool; it is superseded. Every entry in <code>tools</code> is live: <code>origin</code> resolves and <code>source</code> is a public repository, or <code>null</code> when it is not public yet. <code>agent: true</code> means the tool implements <code>run=</code> and the result handle; <code>params</code> and <code>result</code> describe them.</p>
 </section>
 
 <section id="privacy">
   <h2>Privacy and licences</h2>
-  <p>These tools process what you give them on your device. They do not upload it, do not need an account and do not set tracking identifiers. This page makes no request to any origin but its own, and a Content-Security-Policy enforces that; a CI test loads the page and fails on any other origin.</p>
-  <p><strong>The worked example of the standard:</strong> <a id="audit-link" href="https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md" rel="noopener noreferrer">the facebind privacy audit</a>, a published check of one tool's zero-egress claim.</p>
-  <p data-testid="egress-exception"><strong>The one exception.</strong> The planned <code>glb-fbx</code> tool would have a cloud tier. That would be the family's only non-zero-egress path. If it ships, it is labelled as such on this page and on its card.</p>
+  <p>The artifact tools process what you give them on your device: they do not upload it, need no account and set no tracking identifiers. Each tool's <code>egress</code> and <code>fetches</code> say exactly what it contacts; some load code or model weights by GET on first use. The stream tool, posecast, sends pose data to a websocket endpoint by design, so the zero-egress claim does not cover it; its card says so.</p>
+  <p>This page makes no request to any origin but its own, and a Content-Security-Policy enforces that; a CI test loads the page and fails on any other origin.</p>
+  <p><strong>How the claim is checked.</strong> For a tool you can use today, <a id="audit-bodyrig" href="https://github.com/tejaswigowda/bodyrig-webCLI#verify-zero-egress" rel="noopener noreferrer">bodyrig explains how to verify zero egress</a> and its test suite asserts it. The worked example of the standard is <a id="audit-facebind" href="https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md" rel="noopener noreferrer">the facebind privacy audit</a>; facebind is not listed above yet because it is moving to its own origin first.</p>
+  <p data-testid="egress-exception">One planned tool would have a cloud tier. That is labelled under Planned above, and would be labelled on its card if it ships.</p>
   <h3>Licences</h3>
   <ul id="licences" data-testid="licences"></ul>
   <p>Vendored components keep their own notices. This page is GPL-3.0 and vendors nothing.</p>
@@ -94,7 +104,7 @@ curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .orig
 </main>
 
 <footer>
-  <p><span id="updated"></span> · <a href="tools.json">tools.json</a> · <a href="schema/1.json">schema</a></p>
+  <p><span id="updated"></span> · <a href="tools.json">tools.json</a> · <a href="schema/2.json">schema</a> · <a id="paper-link" href="https://arxiv.org/abs/2608.28950" rel="noopener noreferrer">the paper (arXiv)</a></p>
 </footer>
 </body>
 </html>

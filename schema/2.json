@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://webcli.app/schema/2.json",
+  "title": "webCLI family index, schema 2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "family", "site", "updated", "contract", "paper", "audits", "example", "tools", "planned"],
+  "properties": {
+    "schema": { "const": 2 },
+    "family": { "type": "string" },
+    "site": { "type": "string", "pattern": "^https://" },
+    "updated": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "contract": {
+      "description": "Only what holds for every tool. Everything that varies (egress, fetches, kind, determinism) is declared per tool.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["account", "entry_method", "egress", "run_param", "result_handle", "status_selector", "status_values"],
+      "properties": {
+        "account": { "const": false },
+        "entry_method": { "const": "GET" },
+        "egress": { "const": "declared-per-tool" },
+        "run_param": { "type": "string" },
+        "result_handle": { "type": "string" },
+        "status_selector": { "type": "string" },
+        "status_values": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "paper": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "url"],
+      "properties": { "title": { "type": "string" }, "url": { "type": "string", "pattern": "^https://" } }
+    },
+    "audits": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tool", "listed", "title", "url"],
+        "properties": {
+          "tool": { "type": "string" },
+          "listed": { "type": "boolean", "description": "true when the tool is in tools[]" },
+          "title": { "type": "string" },
+          "url": { "type": "string", "pattern": "^https://" }
+        }
+      }
+    },
+    "example": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "path", "params", "result", "artifact_sha256", "verified"],
+      "properties": {
+        "tool": { "type": "string" },
+        "path": { "type": "string" },
+        "params": {
+          "type": "object",
+          "additionalProperties": { "anyOf": [{ "type": "string" }, { "type": "array", "items": { "type": "string" } }] }
+        },
+        "result": { "type": "object" },
+        "artifact_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "verified": { "type": "string" }
+      }
+    },
+    "tools": { "type": "array", "items": { "$ref": "#/$defs/tool" } },
+    "planned": { "type": "array", "items": { "$ref": "#/$defs/planned" } }
+  },
+  "$defs": {
+    "tool": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "origin", "role", "inputs", "outputs", "params", "result", "testids", "agent", "status", "kind", "egress", "fetches", "fetches_optional", "deterministic", "caveat", "source", "licence"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "origin": { "type": "string", "pattern": "^https://[^/]+/$" },
+        "role": { "type": "string", "minLength": 1 },
+        "inputs": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "outputs": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "required", "repeatable", "description"],
+            "properties": {
+              "name": { "type": "string" },
+              "required": { "type": "boolean" },
+              "repeatable": { "type": "boolean" },
+              "values": { "type": "array", "items": { "type": "string" } },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "result": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["handle", "shape"],
+              "properties": { "handle": { "type": "string" }, "shape": { "type": "string" } }
+            }
+          ]
+        },
+        "testids": { "type": "array", "items": { "type": "string" } },
+        "agent": { "type": "boolean", "description": "true when the tool implements run= and the result handle" },
+        "status": { "const": "live" },
+        "kind": { "enum": ["artifact", "stream"], "description": "artifact: URL or local input in, artifact out. stream: a live stream, outside the artifact contract." },
+        "egress": { "enum": ["none", "stream-to-endpoint"], "description": "Whether user content leaves the device. 'none' says nothing about static code, weights or user-named input URLs fetched by GET: those are in fetches." },
+        "fetches": {
+          "description": "What the tool contacts by GET on first use. null means not audited yet.",
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/fetchList" }]
+        },
+        "fetches_optional": {
+          "description": "Contacted only if the user turns an optional feature on. null means not audited yet.",
+          "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/fetchList" }]
+        },
+        "deterministic": { "enum": ["verified", "unverified", "n/a"], "description": "verified: same inputs, same bytes, checked by test. unverified: not claimed. n/a: a stream." },
+        "caveat": { "type": ["string", "null"] },
+        "source": { "type": ["string", "null"], "pattern": "^https://" },
+        "licence": { "type": ["string", "null"] },
+        "licence_note": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "agent": { "const": true } } },
+          "then": { "properties": { "result": { "type": "object" }, "params": { "minItems": 1 } } },
+          "else": { "properties": { "result": { "type": "null" } } }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "stream" } } },
+          "then": { "properties": { "egress": { "const": "stream-to-endpoint" }, "deterministic": { "const": "n/a" } } },
+          "else": { "properties": { "egress": { "const": "none" }, "deterministic": { "enum": ["verified", "unverified"] } } }
+        }
+      ]
+    },
+    "fetchList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^(code|weights|input-urls):[a-z0-9-]+$" }
+    },
+    "planned": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "status", "note"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "status": { "enum": ["spec", "decided", "origin-move"] },
+        "note": { "type": "string" },
+        "egress": { "const": "cloud-tier" }
+      }
+    }
+  }
+}

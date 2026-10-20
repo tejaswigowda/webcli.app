@@ -115,8 +115,9 @@ test('no-JS: the noscript list names every live tool with a working link', async
   const ctx = await browser.newContext({ javaScriptEnabled: false });
   const page = await ctx.newPage();
   await page.goto(origin + '/');
-  const links = await page.$$eval('[data-testid=noscript-tools] a', as => as.map(a => [a.textContent, a.href]));
-  assert.deepEqual(links, data.tools.map(t => [t.name, t.origin]));
+  const links = id => page.$$eval(`[data-testid=${id}] a`, as => as.map(a => [a.textContent, a.href]));
+  assert.deepEqual(await links('noscript-tools'), data.tools.filter(t => t.kind === 'artifact').map(t => [t.name, t.origin]));
+  assert.deepEqual(await links('noscript-streams'), data.tools.filter(t => t.kind === 'stream').map(t => [t.name, t.origin]));
   assert.ok(await page.isVisible('[data-testid=noscript-tools]'));
   await ctx.close();
 });
@@ -180,5 +181,30 @@ test('highlighting still works when tools.json fails (static blocks)', async () 
   await page.waitForSelector(DONE);
   assert.equal(await page.locator('[data-testid=agent-surface] code[data-hl=js] span[class^=tok-]').count() > 0, true);
   assert.equal(await page.locator('[data-testid=machine-path] code[data-hl=bash] span[class^=tok-]').count() > 0, true);
+  await ctx.close();
+});
+
+test('cards declare egress and fetches; streams get their own shelf; the agent line is computed from the data', async () => {
+  const ctx = await browser.newContext();
+  const page = await ctx.newPage();
+  await page.goto(origin + '/');
+  await page.waitForSelector(DONE);
+  const artifacts = data.tools.filter(t => t.kind === 'artifact'), streams = data.tools.filter(t => t.kind === 'stream');
+  assert.equal(await page.locator('[data-testid=tools-list] [data-testid^=tool-]').count(), artifacts.length);
+  assert.equal(await page.locator('[data-testid=streams-list] [data-testid^=tool-]').count(), streams.length);
+  for (const t of streams) {
+    assert.equal(await page.locator(`[data-testid=tools-list] [data-testid=tool-${t.name}]`).count(), 0, `${t.name} is not in the artifact list`);
+    assert.match(await page.textContent(`[data-testid=tool-${t.name}]`), /streamed to an endpoint/);
+  }
+  for (const t of data.tools) {
+    const text = await page.textContent(`[data-testid=tool-${t.name}]`);
+    for (const f of t.fetches ?? []) assert.ok(text.includes(f), `${t.name} card lists ${f}`);
+    if (t.fetches === null) assert.match(text, /not audited yet/);
+  }
+  const agents = data.tools.filter(t => t.agent);
+  const line = await page.textContent('[data-testid=agent-status]');
+  assert.ok(line.includes(`${agents.length} of ${data.tools.length} tools`) && agents.every(t => line.includes(t.name)), line);
+  const planned = await page.textContent('[data-testid=planned]');
+  assert.match(planned, /glb-fbx.*cloud tier would be non-zero-egress/);
   await ctx.close();
 });

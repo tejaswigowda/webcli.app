@@ -28,12 +28,21 @@ function row(dl, label, node) {
   dl.append(el('dt', { text: label }), el('dd', {}, node));
 }
 
+const fetchText = list => (list === null ? 'not audited yet' : list.length ? list.join(', ') : 'nothing');
+const REPRO = { verified: 'same input, same bytes (tested)', unverified: 'not verified', 'n/a': 'n/a (a stream)' };
+
+const licenceText = t => (t.licence ? t.licence + (t.licence_note ? ` (${t.licence_note})` : '') : 'licence: not published yet');
+
 function card(t) {
   const badge = el('span', { class: 'badge ' + (t.agent ? 'yes' : 'no'), text: t.agent ? 'run= ✓' : 'no run= yet' });
   const head = el('h3', {}, link(t.origin, t.name), badge);
   const dl = el('dl');
   row(dl, 'in', document.createTextNode(t.inputs.join('; ')));
   row(dl, 'out', document.createTextNode(t.outputs.join('; ')));
+  row(dl, 'egress', el('span', { class: t.egress === 'none' ? '' : 'caveat', text: t.egress === 'none' ? 'none: your content stays on the device' : 'your content is streamed to an endpoint' }));
+  const optional = t.fetches_optional && t.fetches_optional.length ? `; if enabled: ${t.fetches_optional.join(', ')}` : '';
+  row(dl, 'fetches', document.createTextNode(fetchText(t.fetches) + optional));
+  row(dl, 'repro', document.createTextNode(REPRO[t.deterministic]));
   if (t.params.length) {
     const fmt = p => {
       const core = p.name + '=' + (p.values ? p.values.join('|') : '') + (p.repeatable ? ' (repeatable)' : '');
@@ -46,7 +55,7 @@ function card(t) {
   const meta = el('p', { class: 'meta' },
     t.source ? link(t.source, 'source') : document.createTextNode('source: not public yet'),
     ' · ',
-    document.createTextNode(t.licence || 'licence: not published yet'));
+    document.createTextNode(licenceText(t)));
   const art = el('article', { class: 'tool', 'data-testid': 'tool-' + t.name }, head, el('p', { text: t.role }), dl);
   if (t.caveat) art.append(el('p', { class: 'caveat', text: t.caveat }));
   art.append(meta);
@@ -100,12 +109,18 @@ function renderExample(data) {
 
 function render(data) {
   const list = $('tools-list');
-  list.replaceChildren(...data.tools.map(card));
+  list.replaceChildren(...data.tools.filter(t => t.kind === 'artifact').map(card));
+  $('streams-list').replaceChildren(...data.tools.filter(t => t.kind === 'stream').map(card));
+
+  const agents = data.tools.filter(t => t.agent).map(t => t.name);
+  $('agent-status').textContent = agents.length
+    ? `Implemented today by ${agents.join(', ')} (${agents.length} of ${data.tools.length} tools). The other tools do not have it yet.`
+    : 'No tool implements it yet.';
 
   const planned = $('planned');
   planned.replaceChildren('Planned, not live: ');
   data.planned.forEach((p, i) => {
-    planned.append(i ? '; ' : '', el('strong', { text: p.name }), ` (${p.note})`);
+    planned.append(i ? '; ' : '', el('strong', { text: p.name }), ` (${p.note}${p.egress === 'cloud-tier' ? '; its cloud tier would be non-zero-egress and would be labelled as such' : ''})`);
   });
   planned.append('.');
 
@@ -113,10 +128,7 @@ function render(data) {
   highlight();
 
   const lic = $('licences');
-  lic.replaceChildren(...data.tools.map(t => el('li', {}, el('code', { text: t.name }), ': ', t.licence || 'not published yet')));
-
-  const audit = $('audit-link');
-  if (/^https:\/\//.test(data.audit.url)) audit.setAttribute('href', data.audit.url);
+  lic.replaceChildren(...data.tools.map(t => el('li', {}, el('code', { text: t.name }), ': ', licenceText(t).replace(/^licence: /, ''))));
   $('updated').textContent = 'Index updated ' + data.updated;
 }
 
@@ -129,7 +141,7 @@ async function main() {
     const res = await fetch('tools.json', { method: 'GET', credentials: 'omit' });
     if (!res.ok) throw new Error('tools.json: HTTP ' + res.status);
     const data = await res.json();
-    if (data.schema !== 1) throw new Error('unsupported tools.json schema ' + data.schema);
+    if (data.schema !== 2) throw new Error('unsupported tools.json schema ' + data.schema);
     render(data);
     window.__webcli_result = { ok: true, op: 'index', artifact: null, error: null, meta: { tools: data.tools.map(t => t.name), schema: data.schema } };
     setStatus('done');

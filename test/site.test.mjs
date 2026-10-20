@@ -10,10 +10,10 @@ const read = f => fs.readFileSync(path.join(root, f), 'utf8');
 const data = JSON.parse(read('tools.json'));
 const html = read('index.html');
 
-test('tools.json validates against schema/1.json', () => {
-  const validate = new Ajv({ strict: false }).compile(JSON.parse(read('schema/1.json')));
+test('tools.json validates against schema/2.json', () => {
+  const validate = new Ajv({ strict: false }).compile(JSON.parse(read('schema/2.json')));
   assert.ok(validate(data), JSON.stringify(validate.errors, null, 2));
-  assert.equal(data.schema, 1);
+  assert.equal(data.schema, 2);
 });
 
 test('/.well-known/webcli.json is an identical copy', () => {
@@ -49,10 +49,14 @@ test('example: refers to an agent tool, and its params are declared by that tool
   assert.equal(data.example.result.ok, true);
 });
 
-test('noscript list names every live tool with its origin', () => {
-  const block = html.match(/<ul data-testid="noscript-tools">([\s\S]*?)<\/ul>/)?.[1] ?? '';
-  const hrefs = [...block.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)].map(m => [m[2], m[1]]);
-  assert.deepEqual(hrefs, data.tools.map(t => [t.name, t.origin]));
+const noscriptLinks = id => {
+  const block = html.match(new RegExp(`<ul data-testid="${id}">([\\s\\S]*?)</ul>`))?.[1] ?? '';
+  return [...block.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)].map(m => [m[2], m[1]]);
+};
+
+test('noscript lists name every live tool with its origin, artifacts and streams separately', () => {
+  assert.deepEqual(noscriptLinks('noscript-tools'), data.tools.filter(t => t.kind === 'artifact').map(t => [t.name, t.origin]));
+  assert.deepEqual(noscriptLinks('noscript-streams'), data.tools.filter(t => t.kind === 'stream').map(t => [t.name, t.origin]));
 });
 
 test('static contract text agrees with tools.json contract', () => {
@@ -63,13 +67,50 @@ test('static contract text agrees with tools.json contract', () => {
   assert.ok(html.includes('data-webcli-status'));
 });
 
-test('privacy section names every planned non-zero-egress tool', () => {
+test('privacy section: names every live stream tool and points at planned cloud tiers without naming them as live', () => {
   const section = html.match(/<section id="privacy">([\s\S]*?)<\/section>/)[1];
-  for (const p of data.planned.filter(p => p.egress)) assert.ok(section.includes(`<code>${p.name}</code>`), p.name);
+  for (const t of data.tools.filter(t => t.egress !== 'none')) assert.ok(section.includes(t.name), `${t.name} egress is disclosed in the privacy section`);
+  if (data.planned.some(p => p.egress)) assert.ok(section.includes('data-testid="egress-exception"'));
+  for (const p of data.planned) assert.ok(!section.includes(`<code>${p.name}</code>`), `${p.name} is planned and is not part of the privacy promise`);
 });
 
-test('the audit link in the HTML matches tools.json', () => {
-  assert.ok(html.includes(`id="audit-link" href="${data.audit.url}"`));
+test('audits and the paper are linked from the HTML, and match tools.json', () => {
+  for (const a of data.audits) assert.ok(html.includes(`href="${a.url}"`), a.url);
+  assert.ok(data.audits.some(a => a.listed), 'at least one audit targets a live tool');
+  for (const a of data.audits) assert.equal(a.listed, data.tools.some(t => t.name === a.tool), `${a.tool} listed flag`);
+  assert.ok(html.includes(`id="paper-link" href="${data.paper.url}"`));
+  assert.ok(html.includes(`<a href="${data.paper.url}"`), 'paper linked in the lead');
+});
+
+test('nav labels match their section headings', () => {
+  const nav = [...html.match(/<nav[\s\S]*?<\/nav>/)[0].matchAll(/<a href="#([^"]+)">([^<]+)<\/a>/g)];
+  assert.ok(nav.length >= 5);
+  for (const [, id, label] of nav) {
+    const sec = html.match(new RegExp(`<section id="${id}">\\s*<h2>([^<]+)</h2>`));
+    assert.ok(sec, `no section #${id}`);
+    assert.ok(sec[1].toLowerCase().includes(label.toLowerCase()), `nav "${label}" vs heading "${sec[1]}"`);
+  }
+});
+
+test('per-tool contract: stream tools are exactly the non-zero-egress tools, and nothing is promised globally', () => {
+  assert.equal(data.contract.egress, 'declared-per-tool');
+  for (const t of data.tools) assert.equal(t.kind === 'stream', t.egress !== 'none', t.name);
+  for (const t of data.tools.filter(t => t.kind === 'stream')) assert.equal(t.agent, false);
+  assert.ok(data.tools.some(t => t.deterministic === 'verified'));
+  for (const t of data.tools.filter(t => t.deterministic === 'verified')) assert.equal(t.name, data.example.tool, 'verified determinism is backed by the worked example');
+});
+
+test('the schema rejects a manifest that overpromises', () => {
+  const validate = new Ajv({ strict: false }).compile(JSON.parse(read('schema/2.json')));
+  const mutate = f => { const d = structuredClone(data); f(d); return validate(d); };
+  assert.equal(mutate(d => { d.contract.egress = 'none'; }), false, 'global egress const');
+  assert.equal(mutate(d => { d.tools.find(t => t.kind === 'stream').egress = 'none'; }), false, 'a stream claiming zero egress');
+  assert.equal(mutate(d => { d.tools.find(t => t.kind === 'artifact').egress = 'stream-to-endpoint'; }), false, 'an artifact tool streaming');
+  assert.equal(mutate(d => { delete d.tools[0].fetches; }), false, 'fetches is required');
+  assert.equal(mutate(d => { d.tools[0].fetches = ['code:somewhere else']; }), false, 'fetches vocabulary');
+  assert.equal(mutate(d => { d.tools[0].agent = true; }), false, 'agent:true needs params and a result');
+  assert.equal(mutate(d => { d.tools[0].deterministic = 'maybe'; }), false);
+  assert.equal(mutate(() => {}), true, 'unmodified manifest is valid');
 });
 
 test('CSP: meta tag and _headers agree, and are locked down', () => {

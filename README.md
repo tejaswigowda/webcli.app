@@ -2,7 +2,7 @@
 
 The front door of the webCLI family: one static page for people, one JSON file for agents, both from the same source.
 
-- [`tools.json`](tools.json) is the only place a tool is described. `index.html` + `app.js` render it; `/.well-known/webcli.json` is an identical copy (a test enforces that). Schema: [`schema/1.json`](schema/1.json), `"schema": 1`.
+- [`tools.json`](tools.json) is the only place a tool is described. `index.html` + `app.js` render it; `/.well-known/webcli.json` is an identical copy (a test enforces that). Schema: [`schema/2.json`](schema/1.json), `"schema": 2`.
 - No build step, no dependencies, no third-party requests. A CSP (meta tag, plus `_headers` for hosts that support it) makes that enforceable; `npm test` fails on any request to another origin.
 
 ## Changing the family

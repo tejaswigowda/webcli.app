@@ -1,25 +1,35 @@
 {
-  "schema": 1,
+  "schema": 2,
   "family": "webCLI",
   "site": "https://webcli.app/",
   "updated": "2026-10-19",
   "contract": {
-    "input": "URL",
-    "output": "artifact",
-    "method": "GET",
-    "egress": "none",
     "account": false,
+    "entry_method": "GET",
+    "egress": "declared-per-tool",
     "run_param": "run",
     "result_handle": "window.__webcli_result",
     "status_selector": "[data-webcli-status]",
-    "status_values": ["idle", "running", "done", "error"],
-    "deterministic": true
+    "status_values": ["idle", "running", "done", "error"]
   },
-  "audit": {
-    "tool": "facebind",
-    "title": "Face bind: privacy audit (zero egress)",
-    "url": "https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md"
+  "paper": {
+    "title": "The Web-CLI: Verifiable Privacy for Tools, Models, and Inference Engines in the Browser",
+    "url": "https://arxiv.org/abs/2608.28950"
   },
+  "audits": [
+    {
+      "tool": "facebind",
+      "listed": false,
+      "title": "facebind privacy audit (zero egress)",
+      "url": "https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md"
+    },
+    {
+      "tool": "bodyrig",
+      "listed": true,
+      "title": "bodyrig: how to verify zero egress, asserted by its test suite",
+      "url": "https://github.com/tejaswigowda/bodyrig-webCLI#verify-zero-egress"
+    }
+  ],
   "example": {
     "tool": "bodyrig",
     "path": "index.html",
@@ -63,7 +73,12 @@
       "testids": [],
       "agent": false,
       "status": "live",
-      "caveat": "No run= surface yet; loads ffmpeg.wasm from jsDelivr on first use.",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:jsdelivr"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet.",
       "source": "https://github.com/tejaswigowda/ffmpeg-webCLI",
       "licence": "GPL-3.0"
     },
@@ -78,7 +93,12 @@
       "testids": [],
       "agent": false,
       "status": "live",
-      "caveat": "No run= surface yet; loads Transformers.js from jsDelivr and model weights from Hugging Face on first use.",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:jsdelivr", "weights:huggingface"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet.",
       "source": "https://github.com/tejaswigowda/whisper-webCLI",
       "licence": "GPL-3.0"
     },
@@ -93,9 +113,15 @@
       "testids": [],
       "agent": false,
       "status": "live",
-      "caveat": "No run= surface yet; loads magick-wasm from jsDelivr on first use.",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:jsdelivr"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet.",
       "source": "https://github.com/tejaswigowda/magick-webCLI",
-      "licence": "Apache-2.0"
+      "licence": "Apache-2.0",
+      "licence_note": "magick-wasm, the engine it wraps, is also Apache-2.0"
     },
     {
       "name": "chat",
@@ -108,7 +134,12 @@
       "testids": [],
       "agent": false,
       "status": "live",
-      "caveat": "No run= surface yet; needs WebGPU; downloads model weights on first use and loads some scripts from jsDelivr.",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:jsdelivr", "code:github-raw", "weights:huggingface"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet; needs WebGPU.",
       "source": "https://github.com/tejaswigowda/chat-webCLI",
       "licence": null
     },
@@ -123,7 +154,12 @@
       "testids": [],
       "agent": false,
       "status": "live",
-      "caveat": "Needs a camera and a person; a stream, not a URL-to-artifact transform; no run= surface.",
+      "kind": "stream",
+      "egress": "stream-to-endpoint",
+      "fetches": null,
+      "fetches_optional": null,
+      "deterministic": "n/a",
+      "caveat": "A live stream, not a URL-to-artifact transform: it sends pose data to a websocket endpoint, which is user-data egress by design. Needs a camera. No run= surface.",
       "source": "https://github.com/posecaster/posecaster",
       "licence": "GPL-3.0"
     },
@@ -138,6 +174,11 @@
       "testids": [],
       "agent": false,
       "status": "live",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": [],
+      "fetches_optional": [],
+      "deterministic": "unverified",
       "caveat": "No run= surface yet; source repository is not public yet.",
       "source": null,
       "licence": null
@@ -166,7 +207,12 @@
       "testids": ["character-input", "motion-input", "bake", "command", "run", "result", "download"],
       "agent": true,
       "status": "live",
-      "caveat": "Fetches the input URLs you pass, by GET; the optional in-page assist (off by default) downloads model weights.",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["input-urls:user-named"],
+      "fetches_optional": ["code:jsdelivr", "weights:huggingface"],
+      "deterministic": "verified",
+      "caveat": "Fetches the input URLs you pass, by GET. The in-page assist is off by default; if you turn it on it loads WebLLM from jsDelivr and downloads model weights.",
       "source": "https://github.com/tejaswigowda/bodyrig-webCLI",
       "licence": "GPL-3.0"
     }
