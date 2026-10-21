@@ -2,7 +2,7 @@
   "schema": 2,
   "family": "webCLI",
   "site": "https://webcli.app/",
-  "updated": "2026-10-19",
+  "updated": "2026-10-20",
   "contract": {
     "account": false,
     "entry_method": "GET",
@@ -10,7 +10,7 @@
     "run_param": "run",
     "result_handle": "window.__webcli_result",
     "status_selector": "[data-webcli-status]",
-    "status_values": ["idle", "running", "done", "error"]
+    "status_values": ["idle", "loading", "running", "done", "error"]
   },
   "paper": {
     "title": "The Web-CLI: Verifiable Privacy for Tools, Models, and Inference Engines in the Browser",
@@ -18,52 +18,43 @@
   },
   "audits": [
     {
-      "tool": "facebind",
-      "listed": false,
-      "title": "facebind privacy audit (zero egress)",
-      "url": "https://github.com/tejaswigowda/strata-editor/blob/main/guides/FACE_BIND_PRIVACY.md"
+      "tool": "portrait",
+      "listed": true,
+      "title": "portrait privacy audit (zero egress)",
+      "url": "https://github.com/tejaswigowda/portrait-webCLI/blob/main/PRIVACY.md"
     },
     {
-      "tool": "bodyrig",
+      "tool": "rig",
       "listed": true,
-      "title": "bodyrig: how to verify zero egress, asserted by its test suite",
+      "title": "rig: how to verify zero egress, asserted by its test suite",
       "url": "https://github.com/tejaswigowda/bodyrig-webCLI#verify-zero-egress"
     }
   ],
+  "groups": [
+    { "id": "general", "title": "General" },
+    { "id": "capture", "title": "Capture and rig" },
+    { "id": "characters", "title": "Characters" }
+  ],
   "example": {
-    "tool": "bodyrig",
-    "path": "index.html",
-    "params": {
-      "character": "https://cdn.jsdelivr.net/gh/miver-player/miver.xyz@b5c05aedc7748ef1f8046500f4a8daa953d88166/docs/fbx/xbot.fbx",
-      "motion": "https://cdn.jsdelivr.net/gh/tejaswigowda/bodyrig-webCLI@e2009e5aaebfea4ea694059fb0b317720a3e26e9/docs/samples/mocap-33s.bvh",
-      "run": "bake"
-    },
-    "result": {
-      "ok": true,
-      "op": "bake",
-      "artifact": {
-        "mime": "model/gltf-binary",
-        "name": "xbot_mocap-33s.glb",
-        "size": 946800,
-        "dataUrl": "data:model/gltf-binary;base64,<GLB bytes, elided>"
-      },
-      "error": null,
-      "meta": {
-        "tracks": ["mocap-33s"],
-        "frames": 994,
-        "fps": 30,
-        "mapped": 51,
-        "bones": 52,
-        "units": [{ "name": "mocap-33s", "body": true, "face": null, "head": null }],
-        "blendshapes": null
+    "tool": "magick",
+    "title": "ImageMagick in a tab: sepia on a 480 by 320 PNG, nothing uploaded",
+    "shots": [
+      {
+        "src": "shots/magick.jpg",
+        "width": 1100,
+        "height": 780,
+        "alt": "magick-webCLI after a sepia run: the input gradient on the left, the sepia-toned output on the right, and the log line 'Done: sepia 80%'."
       }
-    },
-    "artifact_sha256": "f86a23d52085275d074665cfa9b62ede483d146198e4431199aa3164ee861f20",
-    "verified": "2026-10-19, bodyrig-webCLI @ e2009e5, Chromium, two runs byte-identical"
+    ],
+    "requests": "14 requests during page load and the run: 9 to magick.webcli.app, 3 to cdnjs.cloudflare.com (icon font), 2 to cdn.jsdelivr.net (ImageMagick WebAssembly). All are GETs and none carries a body, so the image is in no request.",
+    "verify": "Open DevTools, Network, then drop an image and press Process.",
+    "note": "magick has no run= surface yet, so this is the interactive path; the cards below say which tools can be driven from a URL today.",
+    "verified": "2026-10-20, Chromium, magick.webcli.app"
   },
   "tools": [
     {
       "name": "ffmpeg",
+      "group": "general",
       "origin": "https://ffmpeg.webcli.app/",
       "role": "Media transform: trim, compress, convert, GIF, audio extraction, and raw FFmpeg commands (ffmpeg.wasm).",
       "inputs": ["video, audio or image file chosen on the device"],
@@ -75,7 +66,7 @@
       "status": "live",
       "kind": "artifact",
       "egress": "none",
-      "fetches": ["code:jsdelivr"],
+      "fetches": ["code:cdnjs", "code:jsdelivr"],
       "fetches_optional": [],
       "deterministic": "unverified",
       "caveat": "No run= surface yet.",
@@ -85,6 +76,7 @@
     },
     {
       "name": "whisper",
+      "group": "general",
       "origin": "https://whisper.webcli.app/",
       "role": "Speech-to-text transcription with Whisper, on the device.",
       "inputs": ["audio or video file chosen on the device"],
@@ -96,7 +88,7 @@
       "status": "live",
       "kind": "artifact",
       "egress": "none",
-      "fetches": ["code:jsdelivr", "weights:huggingface"],
+      "fetches": ["code:cdnjs", "code:jsdelivr", "weights:huggingface"],
       "fetches_optional": [],
       "deterministic": "unverified",
       "caveat": "No run= surface yet.",
@@ -105,50 +97,8 @@
       "licence": "GPL-3.0"
     },
     {
-      "name": "magick",
-      "origin": "https://magick.webcli.app/",
-      "role": "Image editing and conversion with ImageMagick (magick-wasm): 100+ formats, 26 operations, chaining and batch.",
-      "inputs": ["image file or files chosen on the device"],
-      "outputs": ["processed image file (download), or a ZIP for a batch"],
-      "params": [],
-      "result": null,
-      "testids": [],
-      "agent": false,
-      "status": "live",
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": ["code:jsdelivr"],
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "caveat": "No run= surface yet.",
-      "source": "https://github.com/tejaswigowda/magick-webCLI",
-      "source_status": "public",
-      "licence": "Apache-2.0",
-      "licence_note": "magick-wasm, the engine it wraps, is also Apache-2.0"
-    },
-    {
-      "name": "chat",
-      "origin": "https://chat.webcli.app/",
-      "role": "Chat with a large language model that runs in the browser (WebLLM, WebGPU).",
-      "inputs": ["text prompt typed on the device; optional PDF"],
-      "outputs": ["streamed text reply"],
-      "params": [],
-      "result": null,
-      "testids": [],
-      "agent": false,
-      "status": "live",
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": ["code:jsdelivr", "code:github-raw", "weights:huggingface"],
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "caveat": "No run= surface yet; needs WebGPU.",
-      "source": "https://github.com/tejaswigowda/chat-webCLI",
-      "source_status": "public",
-      "licence": "unpublished"
-    },
-    {
       "name": "3mf",
+      "group": "general",
       "origin": "https://3mf.webcli.app/",
       "role": "GLB to 3MF converter with colour-based material segmentation, for multi-material 3D printing.",
       "inputs": ["GLB file chosen on the device"],
@@ -160,7 +110,7 @@
       "status": "live",
       "kind": "artifact",
       "egress": "none",
-      "fetches": ["code:jsdelivr", "code:cdnjs"],
+      "fetches": ["code:cdnjs", "code:jsdelivr"],
       "fetches_optional": [],
       "deterministic": "unverified",
       "caveat": "No run= surface yet.",
@@ -169,29 +119,53 @@
       "licence": "GPL-3.0"
     },
     {
-      "name": "posecast",
-      "origin": "https://posecast.webcli.app/",
-      "role": "Live body-pose stream from a camera to a websocket.",
-      "inputs": ["camera"],
-      "outputs": ["pose stream (websocket)"],
+      "name": "chat",
+      "group": "general",
+      "origin": "https://chat.webcli.app/",
+      "role": "Chat with a large language model that runs in the browser (WebLLM, WebGPU).",
+      "inputs": ["text prompt typed on the device; optional PDF"],
+      "outputs": ["streamed text reply"],
       "params": [],
       "result": null,
       "testids": [],
       "agent": false,
       "status": "live",
-      "kind": "stream",
-      "egress": "stream-to-endpoint",
-      "endpoint": { "set_by": "user", "default": "local" },
-      "fetches": null,
-      "fetches_optional": null,
-      "deterministic": "n/a",
-      "caveat": "A live stream, not a URL-to-artifact transform: it streams to a websocket URL you supply, by default on your own machine, so it leaves the device only if you point it off the device. Needs a camera. No run= surface.",
-      "source": "https://github.com/posecaster/posecaster",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:cdnjs", "code:jsdelivr", "code:esm-run", "code:github-raw", "weights:huggingface"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet; needs WebGPU.",
+      "source": "https://github.com/tejaswigowda/chat-webCLI",
       "source_status": "public",
-      "licence": "GPL-3.0"
+      "licence": "unpublished"
+    },
+    {
+      "name": "magick",
+      "group": "general",
+      "origin": "https://magick.webcli.app/",
+      "role": "Image editing and conversion with ImageMagick (magick-wasm): 100+ formats, 26 operations, chaining and batch.",
+      "inputs": ["image file or files chosen on the device"],
+      "outputs": ["processed image file (download), or a ZIP for a batch"],
+      "params": [],
+      "result": null,
+      "testids": [],
+      "agent": false,
+      "status": "live",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["code:cdnjs", "code:jsdelivr"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "No run= surface yet.",
+      "source": "https://github.com/tejaswigowda/magick-webCLI",
+      "source_status": "public",
+      "licence": "Apache-2.0",
+      "licence_note": "magick-wasm, the engine it wraps, is also Apache-2.0"
     },
     {
       "name": "mocap",
+      "group": "capture",
       "origin": "https://mocap.webcli.app/",
       "role": "Motion-capture recorder, body, face or both, from a camera or a local video file (MediaPipe).",
       "inputs": ["camera or video file chosen on the device"],
@@ -212,8 +186,9 @@
       "licence": "unpublished"
     },
     {
-      "name": "bodyrig",
-      "origin": "https://bodyrig.webcli.app/",
+      "name": "rig",
+      "group": "capture",
+      "origin": "https://rig.webcli.app/",
       "role": "Retarget motion onto a character and bake to GLB (body skeleton and face morph targets).",
       "inputs": [
         "character: FBX, GLB or VRM URL",
@@ -238,20 +213,79 @@
       "kind": "artifact",
       "egress": "none",
       "fetches": ["input-urls:user-named"],
-      "fetches_optional": ["code:jsdelivr", "weights:huggingface"],
+      "fetches_optional": ["code:esm-run", "weights:huggingface"],
       "deterministic": "verified",
-      "caveat": "Fetches the input URLs you pass, by GET. The in-page assist is off by default; if you turn it on it loads WebLLM from jsDelivr and downloads model weights.",
+      "caveat": "Fetches the input URLs you pass, by GET. The in-page assist is off by default; if you turn it on it loads WebLLM and downloads model weights.",
       "source": "https://github.com/tejaswigowda/bodyrig-webCLI",
+      "source_status": "public",
+      "licence": "GPL-3.0"
+    },
+    {
+      "name": "portrait",
+      "group": "characters",
+      "origin": "https://portrait.webcli.app/",
+      "role": "Photo to a face-bound VRM: reads a face on the device and binds its expressions (and optionally face and hair shape) to a base VRM.",
+      "inputs": [
+        "photo: a local file only, never a URL (identity data)",
+        "vrm: male, female, a URL, or a local file"
+      ],
+      "outputs": ["bound VRM (download)", "face-blendshape GLB (download)"],
+      "params": [
+        { "name": "vrm", "required": false, "repeatable": false, "values": ["male", "female", "<url>"], "description": "Base VRM; defaults to the bundled male model." },
+        { "name": "run", "required": false, "repeatable": false, "values": ["bind"], "description": "Start the bind once a photo is supplied from local disk." },
+        { "name": "download", "required": false, "repeatable": false, "values": ["1"], "description": "With run=bind, also save the result." }
+      ],
+      "result": {
+        "handle": "window.__webcli_result",
+        "shape": "{ ok, op: 'bind', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta }"
+      },
+      "testids": ["bind", "download", "face-input", "photo-input", "result", "status", "vrm-input", "vrm-url"],
+      "agent": true,
+      "status": "live",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["input-urls:user-named"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "Expression-bound, photo-informed, not a likeness. The photo is read from a local file only, so a run needs a person or a runner with the file.",
+      "source": "https://github.com/tejaswigowda/portrait-webCLI",
+      "source_status": "public",
+      "licence": "GPL-3.0"
+    },
+    {
+      "name": "look",
+      "group": "characters",
+      "origin": "https://look.webcli.app/",
+      "role": "VRM look editor: recolour textures, edit materials, dress with outfits and accessories, export the edited VRM.",
+      "inputs": ["vrm: URL or a local file"],
+      "outputs": ["edited VRM, 0.x or 1.0 (download)"],
+      "params": [
+        { "name": "vrm", "required": true, "repeatable": false, "description": "URL of the VRM to edit." },
+        { "name": "run", "required": false, "repeatable": false, "values": ["export"], "description": "Load the VRM and export it without a click." }
+      ],
+      "result": {
+        "handle": "window.__webcli_result",
+        "shape": "{ ok, op: 'export', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { source, bytesIn, bytesOut, vrmVersion } }"
+      },
+      "testids": ["vrm-input", "vrm-url", "load", "sample", "download", "result"],
+      "agent": true,
+      "status": "live",
+      "kind": "artifact",
+      "egress": "none",
+      "fetches": ["input-urls:user-named"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "caveat": "Whether look keeps its own front door or merges into portrait is not decided; it is listed separately because it has its own origin.",
+      "source": "https://github.com/tejaswigowda/look-webCLI",
       "source_status": "public",
       "licence": "GPL-3.0"
     }
   ],
   "planned": [
-    { "name": "facebind", "status": "origin-move", "note": "live, expression-bound and photo-informed, not a likeness; moving to its own origin before it is listed" },
-    { "name": "facecast", "status": "decided", "note": "will be built for symmetry with posecast" },
-    { "name": "customizer", "status": "decided", "note": "will be its own webCLI: rig-safe look, wardrobe and expression ops" },
+    { "name": "pose", "status": "origin-move", "note": "live body-pose stream to a websocket you supply, by default on your own machine; not at its own origin yet" },
+    { "name": "portrait-metahuman", "status": "shelved", "note": "MetaHuman sibling of portrait, same photo discipline; shelved" },
+    { "name": "facecast", "status": "decided", "note": "will be built for symmetry with pose" },
     { "name": "facebuild", "status": "spec", "note": "image to face GLB with ARKit morphs" },
-    { "name": "facebind-metahuman", "status": "spec", "note": "MetaHuman sibling of facebind, same photo discipline" },
     { "name": "imagegen", "status": "spec", "note": "on-device asset generation (Qwen-Image, WebGPU); model-licence gated" },
     { "name": "glb-fbx", "status": "spec", "note": "GLB to FBX via headless Blender, two tiers", "egress": "cloud-tier" }
   ]
