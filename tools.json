@@ -138,7 +138,7 @@
       "caveat": "No run= surface yet; needs WebGPU.",
       "source": "https://github.com/tejaswigowda/chat-webCLI",
       "source_status": "public",
-      "licence": "unpublished"
+      "licence": "GPL-3.0"
     },
     {
       "name": "magick",
