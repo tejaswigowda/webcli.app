@@ -93,6 +93,9 @@ pre code { background: none; padding: 0; }
   padding: .8rem 1rem;
   margin: .8rem 0;
 }
+.tool .thumb { float: right; width: 18rem; margin: 0 0 .6rem 1rem; }
+.tool .thumb img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; }
+.tool::after { content: ""; display: block; clear: both; }
 .tool h4 { margin: 0 0 .2rem; font: 700 1rem/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .group { margin-top: 1.6rem; }
 .clauses { padding-left: 1.2rem; }
@@ -112,6 +115,7 @@ figure img { display: block; max-width: 100%; height: auto; border: 1px solid va
 footer { margin: 2rem 0 1rem; color: var(--muted); font-size: .85rem; }
 @media (max-width: 30rem) {
   body { padding: .75rem; }
+  .tool .thumb { float: none; width: 100%; margin: 0 0 .6rem; }
   .tool dl { grid-template-columns: 1fr; gap: 0; }
   .tool dd { margin-bottom: .3rem; }
 }

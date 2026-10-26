@@ -98,6 +98,10 @@ function card(t) {
   if (t.testids.length) row(dl, 'testids', document.createTextNode(t.testids.join(', ')));
   const badge = el('span', { class: 'badge ' + (t.agent ? 'yes' : 'no'), text: t.agent ? 'run= ✓' : 'no run= yet' });
   const art = el('article', { class: 'tool', 'data-testid': 'tool-' + t.name }, el('h4', {}, link(t.origin, t.name), badge), el('p', { text: t.role }), dl);
+  if (t.thumb) {
+    const img = el('img', { src: t.thumb.src, width: 600, height: 400, alt: t.thumb.alt, loading: 'lazy' });
+    art.prepend(el('a', { class: 'thumb', href: t.origin, rel: 'noopener noreferrer', tabindex: '-1' }, img));
+  }
   if (t.caveat) art.append(el('p', { class: 'caveat', text: t.caveat }));
   art.append(el('p', { class: 'meta' }, t.source ? link(t.source, 'source') : document.createTextNode(SOURCE_STATUS[t.source_status]), ' · ', document.createTextNode(licenceText(t))));
   return art;

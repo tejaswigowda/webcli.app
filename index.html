@@ -35,7 +35,7 @@
     <li><strong>Zero-egress.</strong> Your content is never sent anywhere.</li>
     <li><strong>No account, no token, no upload.</strong></li>
   </ul>
-  <p>Zero-egress is about your content. A tool may still <em>fetch</em> static code, model weights or the input URLs you name, by GET; each card lists exactly what under <em>fetches</em>. An artifact is meant to be the same bytes for the same inputs; that is verified for one tool so far, and each card says.</p>
+  <p>Zero-egress is about your content. A tool may still <em>fetch</em> static code, model weights or the input URLs you name, by GET; each card lists exactly what under <em>fetches</em>. An artifact is meant to be the same bytes for the same inputs; that is verified for two tools so far, and each card says.</p>
   <h3>The agent surface</h3>
   <p id="agent-status" data-testid="agent-status">Not every tool has it yet; each card says whether it does, and <code>agent</code> in <a href="tools.json">tools.json</a> lists which.</p>
   <ul>
@@ -61,6 +61,7 @@ const result = await page.evaluate(() =&gt; window.__webcli_result);</code></pre
         <li><a href="https://3mf.webcli.app/">3mf</a>: GLB to 3MF for multi-material printing</li>
         <li><a href="https://chat.webcli.app/">chat</a>: in-browser LLM chat</li>
         <li><a href="https://magick.webcli.app/">magick</a>: image editing and conversion</li>
+        <li><a href="https://dub.webcli.app/">dub</a>: subtitles (SRT) to timed speech</li>
         <li><a href="https://mocap.webcli.app/">mocap</a>: motion-capture recorder</li>
         <li><a href="https://rig.webcli.app/">rig</a>: retarget and bake to GLB</li>
         <li><a href="https://portrait.webcli.app/">portrait</a>: photo to face-bound VRM</li>
