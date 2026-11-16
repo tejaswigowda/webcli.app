@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "generator": {
+    "name": "blog-webcli",
+    "licence": "MIT"
+  },
+  "blog": {
+    "title": "webCLI",
+    "author": "Tejaswi Gowda"
+  },
+  "dependencies": [
+    {
+      "kind": "theme",
+      "name": "default",
+      "licence": "MIT",
+      "builtin": true
+    }
+  ]
+}

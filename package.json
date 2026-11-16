@@ -1,0 +1,17 @@
+{
+  "name": "webcli-app",
+  "private": true,
+  "description": "webcli.app: the front door of the webCLI family, generated from tools.json by blog-webCLI.",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test \"test/*.test.mjs\"",
+    "check:page": "node scripts/check-page.mjs",
+    "check:descriptions": "node scripts/check-descriptions.mjs",
+    "ledger": "node scripts/ledger.mjs",
+    "measure": "node scripts/measure.mjs",
+    "og": "node scripts/og.mjs"
+  }
+}
