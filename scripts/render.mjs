@@ -3,26 +3,86 @@
 // Writes canonical markdown (one line per paragraph) so `blog-webcli fmt` has nothing to change.
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { ROOT, line, readJson, validate } from './lib.mjs';
+import { ROOT, readJson, validate } from './lib.mjs';
 
 const exists = (f) => existsSync(path.join(ROOT, f));
 const num = (n) => n.toLocaleString('en-US');
+const html = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+function card(t) {
+  const row = (label, value) => `<dt>${label}</dt><dd>${value}</dd>`;
+  const code = (value) => `<code>${html(value)}</code>`;
+  const fetches = t.fetches === null ? 'not audited yet' : t.fetches.length ? t.fetches.join(', ') : 'nothing';
+  const optional = t.fetches_optional.length ? `; if enabled: ${t.fetches_optional.join(', ')}` : '';
+  const repro = { verified: 'same input, same bytes (tested)', unverified: 'not verified', 'n/a': 'n/a' };
+  const params = t.params.map((p) => {
+    const text = `${p.name}=${p.values ? p.values.join('|') : ''}${p.repeatable ? ' (repeatable)' : ''}`;
+    return code(p.required ? text : `[${text}]`);
+  }).join(' ');
+  const source = t.source_status === 'public'
+    ? `<a href="https://github.com/${html(t.repository)}">source</a>`
+    : html(`source: ${t.source_status}`);
+  return [
+    `<article class="tool" id="tool-${html(t.name)}">`,
+    t.thumb ? `<a class="thumb" href="${html(t.origin)}"><img src="/${html(t.thumb.src)}" width="600" height="400" alt="${html(t.thumb.alt)}"></a>` : '',
+    `<h4><a href="${html(t.origin)}">${html(t.name)}</a> <span class="badge ${t.agent ? 'yes' : 'no'}">${t.agent ? 'run= yes' : 'no run= yet'}</span> <span class="badge ${t.state === 'working' ? 'yes' : 'no'}">${html(t.state)}</span></h4>`,
+    '<dl>',
+    row('in', html(t.line.in)),
+    row('out', html(t.line.out)),
+    row('not', html(`${t.line.not.tool}, which ${t.line.not.why}`)),
+    row('egress', html(t.egress === 'none' ? 'none: your content stays on the device' : t.egress)),
+    row('fetches', html(fetches + optional)),
+    row('repro', html(repro[t.deterministic])),
+    params ? row('params', params) : '',
+    t.result ? row('result', code(`${t.result.handle} = ${t.result.shape}`)) : '',
+    t.testids.length ? row('testids', html(t.testids.join(', '))) : '',
+    '</dl>',
+    t.limits ? `<p class="caveat">${html(t.limits)}</p>` : '',
+    `<p class="meta">${source} · ${html(t.licence)}${t.gates ? ` · <a href="${html(t.gates)}">passing gates</a>` : ''}</p>`,
+    '</article>',
+  ].join('');
+}
 
 export function renderHome(data) {
   const out = [
     '---', 'slug: home', 'title: webCLI', 'status: published', 'noindex: true', '---', '',
     '# webCLI', '',
-    `{.lead} Twelve tools that each transform one kind of thing in a browser tab. What you give one is not uploaded, with two stated exceptions below; [the paper](${data.paper.url}) explains the architecture. Each is listed with what goes in, what comes out, what it is not, and a state that says how far to trust it.`, '',
+    `{.lead} A family of browser tools that take a URL or a file and return an artifact, with your content processed on your device and no account; [the paper](${data.paper.url}) explains the architecture. Loading code and models, and publishing to a repository, are the two declared exceptions below.`, '',
+    '<div class="section-nav" aria-label="Sections"><a href="#contract">Contract</a><a href="#tools">Tools</a><a href="#example">Example</a><a href="#agents">Agents and scripts</a><a href="#privacy">Privacy</a></div>', '',
+    '<h2 id="contract">The contract</h2>', '',
+    '- **URL in, artifact out.**',
+    '- **GET-only for loading.** Input URLs, code and models are fetched with GET requests.',
+    '- **On-device processing.** Your content stays on your device unless you explicitly publish it.',
+    '- **No account to process a file.** Publishing tools require access to your repository.', '',
+    'Zero-egress is about your content, not about downloading the application. Each card declares what the tool fetches; hls and blog also publish to a repository when you ask them to.', '',
+    '### The agent surface', '',
+    `Implemented today by ${data.tools.filter((t) => t.agent).map((t) => t.name).join(', ')} (${data.tools.filter((t) => t.agent).length} of ${data.tools.length} tools). The other tools do not have it yet.`, '',
+    '- `run=` in the URL starts the operation where supported.',
+    '- `window.__webcli_result` holds the result: `{ ok, op, artifact, error, meta }`.',
+    '- `[data-webcli-status]` on the body reports `idle`, `loading`, `running`, `done` or `error`.',
+    '- Stable test ids for each tool are listed on its card.', '',
+    '```js',
+    '// wait for the operation to finish, then read the handle',
+    "await page.waitForSelector('body[data-webcli-status=done], body[data-webcli-status=error]');",
+    'const result = await page.evaluate(() => window.__webcli_result);',
+    '```', '',
+    '<h2 id="tools">Tools</h2>', '',
+    `{.small} ${data.tools.length} tools, grouped by what they transform. In params, brackets mark optional values. A state of early names its limits; working links passing gates.`, '',
   ];
   for (const g of data.groups) {
     out.push(`## ${g.title}`, '');
     for (const t of data.tools.filter((x) => x.group === g.id)) {
-      out.push(`### [${t.name}](${t.origin})`, '');
-      out.push(`**In:** ${t.line.in}. **Out:** ${t.line.out}. **Not:** ${t.line.not.tool}, which ${t.line.not.why}.`, '');
-      const gates = t.gates ? ` [Its gates](${t.gates}) pass.` : '';
-      out.push(`{.small} **${t.state}.**${gates} ${t.limits || ''}`.trimEnd(), '');
+      out.push(card(t), '');
     }
   }
+  const ex = data.example;
+  out.push(
+    '<h2 id="example">A worked example</h2>', '',
+    ex.title, '',
+    ...ex.shots.flatMap((s) => [`<figure><img src="/${html(s.src)}" width="${s.width}" height="${s.height}" alt="${html(s.alt)}"><figcaption>${html(s.alt)}</figcaption></figure>`, '']),
+    ex.requests, '',
+    `{.small} Historical measurement, verified ${ex.verified}; not a new audit of the current application. ${ex.verify} ${ex.note}`, '',
+  );
   return `${out.join('\n')}`;
 }
 
@@ -79,9 +139,21 @@ export function renderAfter(data, ledger, measure) {
   } else out.push('Speed has not been measured yet.', '');
 
   out.push(
-    '## Agents and scripts', '',
+    '<h2 id="agents">For agents and scripts</h2>', '',
     `The tools are meant to be driven by a URL and to return an artifact; ${agents.length} of ${tools.length} (${agents.join(', ')}) have the \`${data.contract.run_param}=\` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, \`${data.contract.result_handle}\`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.`, '',
+    '```bash',
+    'curl -s https://webcli.app/tools.json',
+    "curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .origin'",
+    '```', '',
+    `The machine-readable index carries schema ${data.schema}. A breaking change bumps that number; each entry declares its origin, state, inputs, outputs, egress, fetches and agent surface.`, '',
+    '<h2 id="privacy">Privacy and licences</h2>', '',
+    'Processing happens on your device. Loading can fetch code, models and input URLs; publishing is an explicit action that sends content to your repository. Each card names its boundary. This index itself makes no third-party requests and runs no JavaScript.', '',
+    '**How the claim is checked:**', '',
     ...data.audits.map((a) => `- [${a.title}](${a.url})`), '',
+    '### Licences', '',
+    ...tools.map((t) => `- \`${t.name}\`: ${t.licence}${t.source_status !== 'public' ? ` (source ${t.source_status})` : ''}`), '',
+    'Vendored components keep their own notices.', '',
+    `{.small} Index updated ${data.updated}. [tools.json](/tools.json) · [the paper (arXiv)](${data.paper.url})`, '',
   );
   return out.join('\n');
 }

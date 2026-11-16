@@ -2,10 +2,10 @@
   "measured": "2026-11-16",
   "runs": 5,
   "js_files": 0,
-  "requests": 2,
-  "transfer_kb": 92.4,
-  "fcp_ms": 584,
-  "lcp_ms": 616,
+  "requests": 3,
+  "transfer_kb": 148.7,
+  "fcp_ms": 664,
+  "lcp_ms": 664,
   "tbt_ms": 0,
   "method": "blog-webCLI's cli/speed.mjs in headless Chrome: Slow 4G (1.6 Mbit/s down, 150 ms round trip), 4x CPU slowdown, a 390 px phone, a new browser profile for every run with the cache off, 5 runs, median reported; FCP and LCP from PerformanceObserver, total blocking time summed from long tasks after first paint; JavaScript counted from the network log. Lab data from one machine, served from 127.0.0.1, so the throttle supplies the latency but not DNS, TLS or distance; measured 2026-11-16."
 }

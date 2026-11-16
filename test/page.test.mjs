@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import { thirdPartyReferences } from '../scripts/build.mjs';
@@ -27,6 +27,38 @@ test('I5: a tool is "working" only if its gate table is linked, and the link is 
 
 test('the committed home page is what tools.json renders', () => {
   assert.equal(page('pages/home.md'), `${renderHome(data).trimEnd()}\n`);
+});
+
+test('the old navigation, tool cards and example are restored without browser rendering', () => {
+  const html = page('index.html');
+  for (const id of ['contract', 'tools', 'example', 'agents', 'privacy']) {
+    assert.ok(html.includes(`href="#${id}"`), `missing navigation to ${id}`);
+    assert.ok(html.includes(`id="${id}"`), `missing section ${id}`);
+  }
+  assert.equal((html.match(/<article class="tool"/g) || []).length, data.tools.length);
+  for (const t of data.tools) {
+    assert.ok(html.includes(`id="tool-${t.name}"`));
+    if (t.thumb) {
+      assert.ok(existsSync(path.join(ROOT, t.thumb.src)), `missing ${t.thumb.src}`);
+      assert.ok(html.includes(`src="/${t.thumb.src}"`));
+    }
+  }
+  for (const shot of data.example.shots) {
+    assert.ok(existsSync(path.join(ROOT, shot.src)));
+    assert.ok(html.includes(`src="/${shot.src}"`));
+  }
+  assert.ok(html.includes('Historical measurement'));
+  assert.ok(html.includes('schema 3'));
+});
+
+test('tool-card data is HTML-escaped, not interpreted as markup', () => {
+  const changed = structuredClone(data);
+  changed.tools[0].line.in = '<script>alert("x")</script>';
+  changed.tools[0].thumb.alt = '" onerror="alert(1)';
+  const md = renderHome(changed);
+  assert.ok(md.includes('&lt;script&gt;'));
+  assert.ok(md.includes('&quot; onerror=&quot;'));
+  assert.doesNotMatch(md, /<script>|alt="" onerror=/);
 });
 
 test('I1: a page that loads anything from another host is caught', () => {

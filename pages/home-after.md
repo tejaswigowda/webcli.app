@@ -43,13 +43,45 @@ Each tool's origin was loaded in a fresh Chrome profile with the cache off, left
 
 This page makes no request to any other host; CI loads it with a cold cache and fails on the first request that is not to its own origin, and the same check can be repeated in DevTools, Network, with Disable cache on.
 
-Lab measurement of this page, median of 5: **0 JavaScript files**, 2 requests, 92.4 KB transferred, first contentful paint 584 ms, largest contentful paint **616 ms**, total blocking time **0 ms**.
+Lab measurement of this page, median of 5: **0 JavaScript files**, 3 requests, 148.7 KB transferred, first contentful paint 664 ms, largest contentful paint **664 ms**, total blocking time **0 ms**.
 
 Method: blog-webCLI's cli/speed.mjs in headless Chrome: Slow 4G (1.6 Mbit/s down, 150 ms round trip), 4x CPU slowdown, a 390 px phone, a new browser profile for every run with the cache off, 5 runs, median reported; FCP and LCP from PerformanceObserver, total blocking time summed from long tasks after first paint; JavaScript counted from the network log. Lab data from one machine, served from 127.0.0.1, so the throttle supplies the latency but not DNS, TLS or distance; measured 2026-11-16.
 
-## Agents and scripts
+<h2 id="agents">For agents and scripts</h2>
 
 The tools are meant to be driven by a URL and to return an artifact; 3 of 12 (rig, look, portrait) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
 
+```bash
+curl -s https://webcli.app/tools.json
+curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .origin'
+```
+
+The machine-readable index carries schema 3. A breaking change bumps that number; each entry declares its origin, state, inputs, outputs, egress, fetches and agent surface.
+
+<h2 id="privacy">Privacy and licences</h2>
+
+Processing happens on your device. Loading can fetch code, models and input URLs; publishing is an explicit action that sends content to your repository. Each card names its boundary. This index itself makes no third-party requests and runs no JavaScript.
+
+**How the claim is checked:**
+
 - [portrait privacy audit (zero egress)](https://github.com/tejaswigowda/portrait-webCLI/blob/main/PRIVACY.md)
 - [rig: how to verify zero egress, asserted by its test suite](https://github.com/tejaswigowda/rig-webCLI#verify-zero-egress)
+
+### Licences
+
+- `ffmpeg`: GPL-3.0
+- `hls`: GPL-3.0
+- `whisper`: GPL-3.0
+- `dub`: GPL-3.0
+- `3mf`: GPL-3.0
+- `mocap`: unpublished (source private)
+- `rig`: GPL-3.0
+- `magick`: Apache-2.0
+- `look`: GPL-3.0
+- `portrait`: GPL-3.0
+- `blog`: GPL-3.0 (tool), MIT (runtime)
+- `chat`: GPL-3.0
+
+Vendored components keep their own notices.
+
+{.small} Index updated 2026-11-15. [tools.json](/tools.json) · [the paper (arXiv)](https://arxiv.org/abs/2608.28950)

@@ -34,6 +34,22 @@
       "url": "https://github.com/tejaswigowda/rig-webCLI#verify-zero-egress"
     }
   ],
+  "example": {
+    "tool": "magick",
+    "title": "ImageMagick in a tab: sepia on a 480 by 320 PNG, nothing uploaded",
+    "shots": [
+      {
+        "src": "shots/magick.jpg",
+        "width": 1100,
+        "height": 780,
+        "alt": "magick-webCLI after a sepia run: the input gradient on the left, the sepia-toned output on the right, and the log line 'Done: sepia 80%'."
+      }
+    ],
+    "requests": "14 requests during page load and the run: 9 to magick.webcli.app, 3 to cdnjs.cloudflare.com (icon font), 2 to cdn.jsdelivr.net (ImageMagick WebAssembly). All were GETs and none carried a body, so the image was in no request.",
+    "verify": "Open DevTools, Network, then drop an image and press Process.",
+    "note": "magick has no run= surface yet, so this is the interactive path; the cards say which tools can be driven from a URL today.",
+    "verified": "2026-10-20, Chromium, magick.webcli.app"
+  },
   "groups": [
     { "id": "video-audio", "title": "Video and audio" },
     { "id": "3d-motion", "title": "3D and motion" },
@@ -43,6 +59,7 @@
   "tools": [
     {
       "name": "ffmpeg",
+      "thumb": { "src": "shots/thumbs/ffmpeg.jpg", "alt": "ffmpeg-webCLI: a video drop zone, trim sliders and operations for converting, resizing, extracting audio and GIF." },
       "group": "video-audio",
       "subdomain": "ffmpeg.webcli.app",
       "origin": "https://ffmpeg.webcli.app/",
@@ -95,6 +112,7 @@
     },
     {
       "name": "whisper",
+      "thumb": { "src": "shots/thumbs/whisper.jpg", "alt": "whisper-webCLI: audio transcription and subtitle controls." },
       "group": "video-audio",
       "subdomain": "whisper.webcli.app",
       "origin": "https://whisper.webcli.app/",
@@ -121,6 +139,7 @@
     },
     {
       "name": "dub",
+      "thumb": { "src": "shots/thumbs/dub.jpg", "alt": "dub-webCLI: subtitle input and timed speech controls." },
       "group": "video-audio",
       "subdomain": "dub.webcli.app",
       "origin": "https://dub.webcli.app/",
@@ -147,6 +166,7 @@
     },
     {
       "name": "3mf",
+      "thumb": { "src": "shots/thumbs/3mf.jpg", "alt": "3mf-webCLI: a 3D model preview and multi-material printing controls." },
       "group": "3d-motion",
       "subdomain": "3mf.webcli.app",
       "origin": "https://3mf.webcli.app/",
@@ -173,6 +193,7 @@
     },
     {
       "name": "mocap",
+      "thumb": { "src": "shots/thumbs/mocap.jpg", "alt": "mocap-webCLI: motion capture and recording controls." },
       "group": "3d-motion",
       "subdomain": "mocap.webcli.app",
       "origin": "https://mocap.webcli.app/",
@@ -199,6 +220,7 @@
     },
     {
       "name": "rig",
+      "thumb": { "src": "shots/thumbs/rig.jpg", "alt": "rig-webCLI: character, motion and retargeting controls." },
       "group": "3d-motion",
       "subdomain": "rig.webcli.app",
       "origin": "https://rig.webcli.app/",
@@ -234,6 +256,7 @@
     },
     {
       "name": "magick",
+      "thumb": { "src": "shots/thumbs/magick.jpg", "alt": "magick-webCLI: image input, processing controls and an output preview." },
       "group": "images",
       "subdomain": "magick.webcli.app",
       "origin": "https://magick.webcli.app/",
@@ -260,6 +283,7 @@
     },
     {
       "name": "look",
+      "thumb": { "src": "shots/thumbs/look.jpg", "alt": "look-webCLI: a VRM chooser and texture, material and blendshape editing tabs." },
       "group": "images",
       "subdomain": "look.webcli.app",
       "origin": "https://look.webcli.app/",
@@ -292,6 +316,7 @@
     },
     {
       "name": "portrait",
+      "thumb": { "src": "shots/thumbs/portrait.jpg", "alt": "portrait-webCLI: a face photo chooser, a base VRM picker and a Bind button." },
       "group": "images",
       "subdomain": "portrait.webcli.app",
       "origin": "https://portrait.webcli.app/",
@@ -351,6 +376,7 @@
     },
     {
       "name": "chat",
+      "thumb": { "src": "shots/thumbs/chat.jpg", "alt": "chat-webCLI: an on-device model selector and conversation interface." },
       "group": "text-publishing",
       "subdomain": "chat.webcli.app",
       "origin": "https://chat.webcli.app/",
