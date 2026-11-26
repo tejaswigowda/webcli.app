@@ -1,9 +1,9 @@
 {
-  "schema": 3,
+  "schema": 4,
   "family": "webCLI",
   "site": "https://webcli.app/",
-  "updated": "2026-11-15",
-  "about": "Authoritative. The page is generated from this file (scripts/render.mjs) and CI fails when a repository's GitHub description differs from its line (scripts/check-descriptions.mjs). A line is: In: <in>. Out: <out>. Not: <not.tool>, which <not.why>.",
+  "updated": "2026-11-25",
+  "about": "Generated from each pages/tool-*.md front matter; tools and libraries are separated by kind.",
   "states": {
     "working": "does its job end to end; its gates pass and are linked",
     "early": "usable, incomplete, with its limitations named",
@@ -16,7 +16,13 @@
     "run_param": "run",
     "result_handle": "window.__webcli_result",
     "status_selector": "[data-webcli-status]",
-    "status_values": ["idle", "loading", "running", "done", "error"]
+    "status_values": [
+      "idle",
+      "loading",
+      "running",
+      "done",
+      "error"
+    ]
   },
   "paper": {
     "title": "The Web-CLI: Verifiable Privacy for Tools, Models, and Inference Engines in the Browser",
@@ -51,355 +57,770 @@
     "verified": "2026-10-20, Chromium, magick.webcli.app"
   },
   "groups": [
-    { "id": "video-audio", "title": "Video and audio" },
-    { "id": "3d-motion", "title": "3D and motion" },
-    { "id": "images", "title": "Images" },
-    { "id": "text-publishing", "title": "Text and publishing" }
+    {
+      "id": "video-audio",
+      "title": "Video and audio"
+    },
+    {
+      "id": "3d-motion",
+      "title": "3D and motion"
+    },
+    {
+      "id": "images",
+      "title": "Images"
+    },
+    {
+      "id": "text-publishing",
+      "title": "Text and publishing"
+    },
+    {
+      "id": "file-transfer",
+      "title": "File transfer"
+    },
+    {
+      "id": "games",
+      "title": "Games"
+    },
+    {
+      "id": "calls",
+      "title": "Calls"
+    }
   ],
   "tools": [
     {
-      "name": "ffmpeg",
-      "thumb": { "src": "shots/thumbs/ffmpeg.jpg", "alt": "ffmpeg-webCLI: a video drop zone, trim sliders and operations for converting, resizing, extracting audio and GIF." },
-      "group": "video-audio",
-      "subdomain": "ffmpeg.webcli.app",
-      "origin": "https://ffmpeg.webcli.app/",
-      "repository": "tejaswigowda/ffmpeg-webCLI",
-      "line": {
-        "in": "a video, audio or image file from your device",
-        "out": "that media trimmed, converted, scaled or compressed, or as a GIF or extracted audio",
-        "not": { "tool": "hls", "why": "only builds and manages adaptive-streaming libraries; this one is the general transforms" }
+      "thumb": {
+        "src": "shots/thumbs/3mf.jpg",
+        "alt": "3mf-webCLI: a 3D model preview and multi-material printing controls."
       },
-      "state": "early",
-      "limits": "No gate table yet and no run= surface.",
-      "gates": null,
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": ["code:cdnjs", "code:jsdelivr"],
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "GPL-3.0",
-      "source_status": "public"
-    },
-    {
-      "name": "hls",
-      "group": "video-audio",
-      "subdomain": "hls.webcli.app",
-      "origin": "https://hls.webcli.app/",
-      "repository": "tejaswigowda/hls-webCLI",
-      "line": {
-        "in": "an MP4 and the git repository it should live in",
-        "out": "a versioned adaptive-streaming release (ladder, segments, playlists) committed and tagged name/vN",
-        "not": { "tool": "ffmpeg", "why": "does general transforms and keeps nothing; this one does exactly one thing" }
-      },
-      "state": "working",
-      "limits": "Publishing is a commit to your repository, so it is egress, and it is yours to start. H.264 only; variable-frame-rate and rotated files are refused by name.",
-      "gates": "https://github.com/tejaswigowda/hls-webCLI#tests-and-gates",
-      "kind": "artifact",
-      "egress": "user-initiated",
-      "fetches": null,
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "GPL-3.0",
-      "source_status": "public"
-    },
-    {
-      "name": "whisper",
-      "thumb": { "src": "shots/thumbs/whisper.jpg", "alt": "whisper-webCLI: audio transcription and subtitle controls." },
-      "group": "video-audio",
-      "subdomain": "whisper.webcli.app",
-      "origin": "https://whisper.webcli.app/",
-      "repository": "tejaswigowda/whisper-webCLI",
-      "line": {
-        "in": "an audio or video file from your device",
-        "out": "a transcript as text, SRT or WebVTT",
-        "not": { "tool": "dub", "why": "goes the other way, from subtitles to speech" }
-      },
-      "state": "early",
-      "limits": "No gate table yet and no run= surface. The Whisper model is downloaded on first use.",
-      "gates": null,
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": ["code:cdnjs", "code:jsdelivr", "weights:huggingface"],
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "GPL-3.0",
-      "source_status": "public"
-    },
-    {
-      "name": "dub",
-      "thumb": { "src": "shots/thumbs/dub.jpg", "alt": "dub-webCLI: subtitle input and timed speech controls." },
-      "group": "video-audio",
-      "subdomain": "dub.webcli.app",
-      "origin": "https://dub.webcli.app/",
-      "repository": "tejaswigowda/dub-webCLI",
-      "line": {
-        "in": "an SRT file",
-        "out": "one WAV with every cue spoken at its timestamp, and a report.json of overruns and collisions",
-        "not": { "tool": "whisper", "why": "turns speech into text; this only writes speech, and never time-stretches a cue" }
-      },
-      "state": "working",
-      "limits": "Byte-identical output holds on the wasm device with q8, not on webgpu. No run= surface yet.",
-      "gates": "https://github.com/tejaswigowda/dub-webCLI#tests-and-gates",
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": ["weights:huggingface"],
-      "fetches_optional": [],
-      "deterministic": "verified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "GPL-3.0",
-      "source_status": "public"
-    },
-    {
-      "name": "3mf",
-      "thumb": { "src": "shots/thumbs/3mf.jpg", "alt": "3mf-webCLI: a 3D model preview and multi-material printing controls." },
       "group": "3d-motion",
-      "subdomain": "3mf.webcli.app",
-      "origin": "https://3mf.webcli.app/",
-      "repository": "tejaswigowda/3mf-webCLI",
       "line": {
         "in": "a GLB model",
         "out": "a 3MF with its materials segmented by colour, for multi-material printing",
-        "not": { "tool": "rig", "why": "bakes motion into an animated GLB; this converts one model to one print format and animates nothing" }
+        "not": {
+          "tool": "rig",
+          "why": "bakes motion into an animated GLB; this converts one model to one print format and animates nothing"
+        }
       },
       "state": "early",
       "limits": "GLB in, 3MF out, nothing else. No gate table yet and no run= surface.",
       "gates": null,
-      "kind": "artifact",
       "egress": "none",
-      "fetches": ["code:cdnjs", "code:jsdelivr"],
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "GPL-3.0",
-      "source_status": "public"
-    },
-    {
-      "name": "mocap",
-      "thumb": { "src": "shots/thumbs/mocap.jpg", "alt": "mocap-webCLI: motion capture and recording controls." },
-      "group": "3d-motion",
-      "subdomain": "mocap.webcli.app",
-      "origin": "https://mocap.webcli.app/",
-      "repository": "tejaswigowda/mocap-webCLI",
-      "line": {
-        "in": "a webcam or a video file of a person",
-        "out": "body motion as a BVH and face motion as ARKit blendshapes JSON",
-        "not": { "tool": "rig", "why": "retargets motion onto a character you bring; this one only records, and bakes only onto its two bundled avatars" }
-      },
-      "state": "early",
-      "limits": "The source repository is private, so there is no open licence yet. One webcam cannot give studio-grade face and body at once. First load is about 100 MB.",
-      "gates": null,
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": [],
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "unpublished",
-      "source_status": "private"
-    },
-    {
-      "name": "rig",
-      "thumb": { "src": "shots/thumbs/rig.jpg", "alt": "rig-webCLI: character, motion and retargeting controls." },
-      "group": "3d-motion",
-      "subdomain": "rig.webcli.app",
-      "origin": "https://rig.webcli.app/",
-      "repository": "tejaswigowda/rig-webCLI",
-      "line": {
-        "in": "a skinned character (FBX, GLB or VRM) and motion files (BVH, FBX or GLB)",
-        "out": "one optimized animated GLB carrying each motion as its own track",
-        "not": { "tool": "mocap", "why": "records motion from a camera; this one watches nothing and retargets motion that already exists" }
-      },
-      "state": "early",
-      "limits": "The optional in-page assist is off by default; turning it on downloads about 1 GB of model weights. Its tests are not yet published as a gate table.",
-      "gates": null,
-      "kind": "artifact",
-      "egress": "none",
-      "fetches": ["input-urls:user-named"],
-      "fetches_optional": ["code:esm-run", "weights:huggingface"],
-      "deterministic": "verified",
-      "agent": true,
-      "params": [
-        { "name": "character", "required": true, "repeatable": false, "description": "URL of the character (FBX, GLB, VRM)." },
-        { "name": "motion", "required": true, "repeatable": true, "description": "URL of a BVH or face-record JSON; repeat for several tracks." },
-        { "name": "map", "required": false, "repeatable": false, "description": "URL of a flat bone-map JSON." },
-        { "name": "args", "required": false, "repeatable": false, "description": "Raw bake flags, e.g. \"--fps 24 --trim 2:10\"." },
-        { "name": "run", "required": false, "repeatable": false, "values": ["bake"], "description": "Start the op as soon as the page loads." }
+      "fetches": [
+        "code:cdnjs",
+        "code:jsdelivr"
       ],
-      "result": {
-        "handle": "window.__webcli_result",
-        "shape": "{ ok, op: 'bake', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { tracks, frames, fps, mapped, bones, units, blendshapes } }"
-      },
-      "testids": ["character-input", "motion-input", "bake", "command", "run", "result", "download"],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "3mf-webCLI",
+      "version": "0.1.0",
+      "live": "https://tejaswigowda.com/3mf-webCLI/",
+      "repo": "https://github.com/tejaswigowda/3mf-webCLI",
       "licence": "GPL-3.0",
-      "source_status": "public"
+      "agent": false,
+      "boundary": "No uploads, no servers - all processing happens locally in your browser.",
+      "measured": "partial",
+      "page": "/#tool-3mf",
+      "name": "3mf",
+      "repository": "tejaswigowda/3mf-webCLI",
+      "origin": "https://tejaswigowda.com/3mf-webCLI/",
+      "subdomain": "tejaswigowda.com",
+      "output_kind": "artifact"
     },
     {
-      "name": "magick",
-      "thumb": { "src": "shots/thumbs/magick.jpg", "alt": "magick-webCLI: image input, processing controls and an output preview." },
-      "group": "images",
-      "subdomain": "magick.webcli.app",
-      "origin": "https://magick.webcli.app/",
-      "repository": "tejaswigowda/magick-webCLI",
+      "group": "text-publishing",
       "line": {
-        "in": "image files from your device",
-        "out": "those images converted between 100+ formats, or edited with chained, batchable operations",
-        "not": { "tool": "look", "why": "edits the textures and materials of a VRM avatar; this one edits pictures and knows nothing of avatars" }
+        "in": "Markdown pages and optional posts in a GitHub repository",
+        "out": "a static website committed back to that repository, with a feed when it has posts",
+        "not": {
+          "tool": "hls",
+          "why": "makes the video releases a post can embed; this one encodes no video"
+        }
+      },
+      "state": "early",
+      "limits": "Publishing is a commit to your repository, so it is egress, and it is yours to start. Its own test suite had 5 failures of 598 on 2026-11-15. Every page it generates loads Font Awesome from cdnjs, with no way to turn that off.",
+      "gates": null,
+      "egress": "user-initiated",
+      "fetches": null,
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "blog-webCLI",
+      "version": "0.5.1",
+      "live": "https://blog.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/blog-webCLI",
+      "licence": "GPL-3.0 (tool), MIT (runtime)",
+      "agent": false,
+      "boundary": "No application server or per-site deployment is required.",
+      "measured": "partial",
+      "page": "/#tool-blog",
+      "name": "blog",
+      "repository": "tejaswigowda/blog-webCLI",
+      "origin": "https://blog.webcli.app/",
+      "subdomain": "blog.webcli.app",
+      "output_kind": "artifact"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/chat.jpg",
+        "alt": "chat-webCLI: an on-device model selector and conversation interface."
+      },
+      "group": "text-publishing",
+      "line": {
+        "in": "text you type",
+        "out": "a reply from a language model running on your own GPU",
+        "not": {
+          "tool": "blog",
+          "why": "writes to a repository and publishes; this one keeps conversations in this browser and sends them nowhere"
+        }
+      },
+      "state": "early",
+      "limits": "Needs WebGPU. Model weights are downloaded on first use. Conversations are saved in this browser's localStorage. No gate table yet.",
+      "gates": null,
+      "egress": "none",
+      "fetches": [
+        "code:cdnjs",
+        "code:jsdelivr",
+        "code:esm-run",
+        "code:github-raw",
+        "weights:huggingface"
+      ],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "chat-webCLI",
+      "version": "unversioned",
+      "live": "https://tejaswigowda.com/chat-webCLI/",
+      "repo": "https://github.com/tejaswigowda/chat-webCLI",
+      "licence": "GPL-3.0",
+      "agent": false,
+      "boundary": "A browser-based LLM chat app that runs large language models entirely in your browser using WebLLM and WebGPU - no server, no API keys, no data leaves your device.",
+      "measured": "partial",
+      "page": "/#tool-chat",
+      "name": "chat",
+      "repository": "tejaswigowda/chat-webCLI",
+      "origin": "https://tejaswigowda.com/chat-webCLI/",
+      "subdomain": "tejaswigowda.com",
+      "output_kind": "artifact"
+    },
+    {
+      "name": "chess",
+      "group": "games",
+      "line": {
+        "in": "an invite link, or nothing for a game on this device",
+        "out": "a game, with a PGN saved on this device if you choose",
+        "not": {
+          "tool": "rtc",
+          "why": "makes live calls; chess exchanges signed moves and can keep a game in a git repository"
+        }
+      },
+      "state": "early",
+      "limits": "v0.2.0 (protocol 1). One network test passed; the wider real-device/network matrix, the real GitHub API path and the optional model on a real GPU remain unverified.",
+      "gates": null,
+      "egress": "rooms: peers, relays and STUN; git-backed games: user-initiated GitHub commits",
+      "fetches": [
+        "relays:public-nostr",
+        "stun:stun.cloudflare.com",
+        "weights:huggingface",
+        "api:github"
+      ],
+      "fetches_optional": [],
+      "deterministic": "verified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "chess-webCLI",
+      "version": "0.2.0",
+      "live": "https://chess.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/chess-webCLI",
+      "licence": "GPL-3.0-only",
+      "agent": false,
+      "boundary": "On-device games are zero-egress. Rooms cannot be, because moves have to reach the other player; every request is declared and checkable in DevTools instead.",
+      "measured": "partial",
+      "page": "/#tool-chess",
+      "repository": "tejaswigowda/chess-webCLI",
+      "origin": "https://chess.webcli.app/",
+      "subdomain": "chess.webcli.app"
+    },
+    {
+      "name": "drop",
+      "group": "file-transfer",
+      "line": {
+        "in": "one or more files or folders from your device",
+        "out": "verified files exchanged with the people in a temporary room",
+        "not": {
+          "tool": "box",
+          "why": "stores content for later; drop keeps both browsers present and transfers directly"
+        }
+      },
+      "state": "early",
+      "limits": "v0.2.8 is functional for current desktop testing. Browser-size ceilings, throughput and the wider device matrix are pending.",
+      "gates": null,
+      "egress": "user-initiated peer transfer",
+      "fetches": [
+        "signaling:public-nostr-relays",
+        "stun:stun.cloudflare.com"
+      ],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "drop-webCLI",
+      "version": "0.2.8",
+      "live": "https://drop.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/drop-webCLI",
+      "licence": "GPL-3.0-only",
+      "agent": false,
+      "boundary": "This is not storage, a cloud locker, a mailbox, or “AirDrop for the internet.” Both browsers must be open at the same time. There is no nearby discovery.",
+      "measured": "partial",
+      "page": "/#tool-drop",
+      "repository": "tejaswigowda/drop-webCLI",
+      "origin": "https://drop.webcli.app/",
+      "subdomain": "drop.webcli.app"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/dub.jpg",
+        "alt": "dub-webCLI: subtitle input and timed speech controls."
+      },
+      "group": "video-audio",
+      "line": {
+        "in": "an SRT file",
+        "out": "one WAV with every cue spoken at its timestamp, and a report.json of overruns and collisions",
+        "not": {
+          "tool": "whisper",
+          "why": "turns speech into text; this only writes speech, and never time-stretches a cue"
+        }
+      },
+      "state": "working",
+      "limits": "Byte-identical output holds on the wasm device with q8, not on webgpu. No run= surface yet.",
+      "gates": "https://github.com/tejaswigowda/dub-webCLI#tests-and-gates",
+      "egress": "none",
+      "fetches": [
+        "weights:huggingface"
+      ],
+      "fetches_optional": [],
+      "deterministic": "verified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "dub-webCLI",
+      "version": "1.0.0",
+      "live": "https://tejaswigowda.com/dub-webCLI/",
+      "repo": "https://github.com/tejaswigowda/dub-webCLI",
+      "licence": "GPL-3.0",
+      "agent": false,
+      "boundary": "No uploads, no servers, no API keys. All processing happens locally in your browser using Transformers.js and ONNX Runtime WebAssembly.",
+      "measured": "partial",
+      "page": "/#tool-dub",
+      "name": "dub",
+      "repository": "tejaswigowda/dub-webCLI",
+      "origin": "https://tejaswigowda.com/dub-webCLI/",
+      "subdomain": "tejaswigowda.com",
+      "output_kind": "artifact"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/ffmpeg.jpg",
+        "alt": "ffmpeg-webCLI: a video drop zone, trim sliders and operations for converting, resizing, extracting audio and GIF."
+      },
+      "group": "video-audio",
+      "line": {
+        "in": "a video, audio or image file from your device",
+        "out": "that media trimmed, converted, scaled or compressed, or as a GIF or extracted audio",
+        "not": {
+          "tool": "hls",
+          "why": "only builds and manages adaptive-streaming libraries; this one is the general transforms"
+        }
       },
       "state": "early",
       "limits": "No gate table yet and no run= surface.",
       "gates": null,
-      "kind": "artifact",
       "egress": "none",
-      "fetches": ["code:cdnjs", "code:jsdelivr"],
+      "fetches": [
+        "code:cdnjs",
+        "code:jsdelivr"
+      ],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "agent": false,
       "params": [],
       "result": null,
       "testids": [],
-      "licence": "Apache-2.0",
-      "source_status": "public"
+      "source_status": "public",
+      "kind": "tool",
+      "id": "ffmpeg-webCLI",
+      "version": "2.0.0",
+      "live": "https://tejaswigowda.com/ffmpeg-webCLI/",
+      "repo": "https://github.com/tejaswigowda/ffmpeg-webCLI",
+      "licence": "GPL-3.0",
+      "agent": false,
+      "boundary": "No uploads, no servers -- all processing happens locally in your browser using WebAssembly.",
+      "measured": "partial",
+      "page": "/#tool-ffmpeg",
+      "name": "ffmpeg",
+      "repository": "tejaswigowda/ffmpeg-webCLI",
+      "origin": "https://tejaswigowda.com/ffmpeg-webCLI/",
+      "subdomain": "tejaswigowda.com",
+      "output_kind": "artifact"
     },
     {
-      "name": "look",
-      "thumb": { "src": "shots/thumbs/look.jpg", "alt": "look-webCLI: a VRM chooser and texture, material and blendshape editing tabs." },
+      "group": "video-audio",
+      "line": {
+        "in": "an MP4 and the git repository it should live in",
+        "out": "a versioned adaptive-streaming release (ladder, segments, playlists) committed and tagged name/vN",
+        "not": {
+          "tool": "ffmpeg",
+          "why": "does general transforms and keeps nothing; this one does exactly one thing"
+        }
+      },
+      "state": "working",
+      "limits": "Publishing is a commit to your repository, so it is egress, and it is yours to start. H.264 only; variable-frame-rate and rotated files are refused by name.",
+      "gates": "https://github.com/tejaswigowda/hls-webCLI#tests-and-gates",
+      "egress": "user-initiated",
+      "fetches": null,
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "hls-webCLI",
+      "version": "unversioned",
+      "live": "https://hls.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/hls-webCLI",
+      "licence": "GPL-3.0",
+      "agent": false,
+      "boundary": "No servers, no accounts, no uploads: your video is decoded and encoded in your browser, and nothing leaves it until you press Publish.",
+      "measured": "partial",
+      "page": "/#tool-hls",
+      "name": "hls",
+      "repository": "tejaswigowda/hls-webCLI",
+      "origin": "https://hls.webcli.app/",
+      "subdomain": "hls.webcli.app",
+      "output_kind": "artifact"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/look.jpg",
+        "alt": "look-webCLI: a VRM chooser and texture, material and blendshape editing tabs."
+      },
       "group": "images",
-      "subdomain": "look.webcli.app",
-      "origin": "https://look.webcli.app/",
-      "repository": "tejaswigowda/look-webCLI",
       "line": {
         "in": "a VRM avatar",
         "out": "the same avatar, as a VRM, with its textures, materials, outfits or accessories changed",
-        "not": { "tool": "portrait", "why": "reads a face from a photo and binds it to a VRM; this one never sees a photo" }
+        "not": {
+          "tool": "portrait",
+          "why": "reads a face from a photo and binds it to a VRM; this one never sees a photo"
+        }
       },
       "state": "early",
       "limits": "The editor re-exports through its own writer, so the output is not a byte-audited edit of the input. Determinism is measured on the two bundled bases only.",
       "gates": null,
-      "kind": "artifact",
       "egress": "none",
-      "fetches": ["input-urls:user-named"],
+      "fetches": [
+        "input-urls:user-named"
+      ],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "agent": true,
       "params": [
-        { "name": "vrm", "required": true, "repeatable": false, "description": "URL of the VRM to edit." },
-        { "name": "run", "required": false, "repeatable": false, "values": ["export"], "description": "Load the VRM and export it without a click." }
+        {
+          "name": "vrm",
+          "required": true,
+          "repeatable": false,
+          "description": "URL of the VRM to edit."
+        },
+        {
+          "name": "run",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "export"
+          ],
+          "description": "Load the VRM and export it without a click."
+        }
       ],
       "result": {
         "handle": "window.__webcli_result",
         "shape": "{ ok, op: 'export', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { source, bytesIn, bytesOut, vrmVersion } }"
       },
-      "testids": ["vrm-input", "vrm-url", "load", "sample", "download", "result"],
+      "testids": [
+        "vrm-input",
+        "vrm-url",
+        "load",
+        "sample",
+        "download",
+        "result"
+      ],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "look-webCLI",
+      "version": "0.1.0",
+      "live": "https://look.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/look-webCLI",
       "licence": "GPL-3.0",
-      "source_status": "public"
+      "agent": true,
+      "boundary": "It is not an installable offline PWA.",
+      "measured": "partial",
+      "page": "/#tool-look",
+      "name": "look",
+      "repository": "tejaswigowda/look-webCLI",
+      "origin": "https://look.webcli.app/",
+      "subdomain": "look.webcli.app",
+      "output_kind": "artifact"
     },
     {
-      "name": "portrait",
-      "thumb": { "src": "shots/thumbs/portrait.jpg", "alt": "portrait-webCLI: a face photo chooser, a base VRM picker and a Bind button." },
+      "thumb": {
+        "src": "shots/thumbs/magick.jpg",
+        "alt": "magick-webCLI: image input, processing controls and an output preview."
+      },
       "group": "images",
-      "subdomain": "portrait.webcli.app",
-      "origin": "https://portrait.webcli.app/",
-      "repository": "tejaswigowda/portrait-webCLI",
+      "line": {
+        "in": "image files from your device",
+        "out": "those images converted between 100+ formats, or edited with chained, batchable operations",
+        "not": {
+          "tool": "look",
+          "why": "edits the textures and materials of a VRM avatar; this one edits pictures and knows nothing of avatars"
+        }
+      },
+      "state": "early",
+      "limits": "No gate table yet and no run= surface.",
+      "gates": null,
+      "egress": "none",
+      "fetches": [
+        "code:cdnjs",
+        "code:jsdelivr"
+      ],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "magick-webCLI",
+      "version": "unversioned",
+      "live": "https://tejaswigowda.com/magick-webCLI/",
+      "repo": "https://github.com/tejaswigowda/magick-webCLI",
+      "licence": "Apache-2.0",
+      "agent": false,
+      "boundary": "No uploads, no servers, all processing happens locally in your browser.",
+      "measured": "partial",
+      "page": "/#tool-magick",
+      "name": "magick",
+      "repository": "tejaswigowda/magick-webCLI",
+      "origin": "https://tejaswigowda.com/magick-webCLI/",
+      "subdomain": "tejaswigowda.com",
+      "output_kind": "artifact"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/portrait.jpg",
+        "alt": "portrait-webCLI: a face photo chooser, a base VRM picker and a Bind button."
+      },
+      "group": "images",
       "line": {
         "in": "a photo of one face and a base VRM",
         "out": "that VRM with its expressions bound to the face read from the photo",
-        "not": { "tool": "look", "why": "edits an avatar's textures and outfits by hand; this one reads a face, and its result is not a likeness" }
+        "not": {
+          "tool": "look",
+          "why": "edits an avatar's textures and outfits by hand; this one reads a face, and its result is not a likeness"
+        }
       },
       "state": "early",
       "limits": "Approximate, not a likeness. One clear front-facing face. The photo is read from a local file only, so a run needs a person or a runner with the file.",
       "gates": null,
-      "kind": "artifact",
       "egress": "none",
-      "fetches": ["input-urls:user-named"],
+      "fetches": [
+        "input-urls:user-named"
+      ],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "agent": true,
       "params": [
-        { "name": "vrm", "required": false, "repeatable": false, "values": ["male", "female", "<url>"], "description": "Base VRM; defaults to the bundled male model." },
-        { "name": "run", "required": false, "repeatable": false, "values": ["bind"], "description": "Start the bind once a photo is supplied from local disk." },
-        { "name": "download", "required": false, "repeatable": false, "values": ["1"], "description": "With run=bind, also save the result." }
+        {
+          "name": "vrm",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "male",
+            "female",
+            "<url>"
+          ],
+          "description": "Base VRM; defaults to the bundled male model."
+        },
+        {
+          "name": "run",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "bind"
+          ],
+          "description": "Start the bind once a photo is supplied from local disk."
+        },
+        {
+          "name": "download",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ],
+          "description": "With run=bind, also save the result."
+        }
       ],
       "result": {
         "handle": "window.__webcli_result",
         "shape": "{ ok, op: 'bind', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta }"
       },
-      "testids": ["bind", "download", "face-input", "photo-input", "result", "status", "vrm-input", "vrm-url"],
+      "testids": [
+        "bind",
+        "download",
+        "face-input",
+        "photo-input",
+        "result",
+        "status",
+        "vrm-input",
+        "vrm-url"
+      ],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "portrait-webCLI",
+      "version": "0.1.0",
+      "live": "https://portrait.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/portrait-webCLI",
       "licence": "GPL-3.0",
-      "source_status": "public"
+      "agent": true,
+      "boundary": "Approximate, not a likeness.",
+      "measured": "partial",
+      "page": "/#tool-portrait",
+      "name": "portrait",
+      "repository": "tejaswigowda/portrait-webCLI",
+      "origin": "https://portrait.webcli.app/",
+      "subdomain": "portrait.webcli.app",
+      "output_kind": "artifact"
     },
     {
-      "name": "blog",
-      "group": "text-publishing",
-      "subdomain": "blog.webcli.app",
-      "origin": "https://blog.webcli.app/",
-      "repository": "tejaswigowda/blog-webCLI",
+      "thumb": {
+        "src": "shots/thumbs/rig.jpg",
+        "alt": "rig-webCLI: character, motion and retargeting controls."
+      },
+      "group": "3d-motion",
       "line": {
-        "in": "markdown posts in a GitHub repository",
-        "out": "static HTML pages, a feed and a sitemap committed back to that repository",
-        "not": { "tool": "hls", "why": "makes the video releases a post can embed; this one encodes no video" }
+        "in": "a skinned character (FBX, GLB or VRM) and motion files (BVH, FBX or GLB)",
+        "out": "one optimized animated GLB carrying each motion as its own track",
+        "not": {
+          "tool": "mocap",
+          "why": "records motion from a camera; this one watches nothing and retargets motion that already exists"
+        }
       },
       "state": "early",
-      "limits": "Publishing is a commit to your repository, so it is egress, and it is yours to start. Its own test suite had 5 failures of 598 on 2026-11-15. Every page it generates loads Font Awesome from cdnjs, with no way to turn that off.",
+      "limits": "The optional in-page assist is off by default; turning it on downloads about 1 GB of model weights. Its tests are not yet published as a gate table.",
       "gates": null,
-      "kind": "artifact",
-      "egress": "user-initiated",
-      "fetches": null,
-      "fetches_optional": [],
-      "deterministic": "unverified",
-      "agent": false,
-      "params": [],
-      "result": null,
-      "testids": [],
-      "licence": "GPL-3.0 (tool), MIT (runtime)",
-      "source_status": "public"
-    },
-    {
-      "name": "chat",
-      "thumb": { "src": "shots/thumbs/chat.jpg", "alt": "chat-webCLI: an on-device model selector and conversation interface." },
-      "group": "text-publishing",
-      "subdomain": "chat.webcli.app",
-      "origin": "https://chat.webcli.app/",
-      "repository": "tejaswigowda/chat-webCLI",
-      "line": {
-        "in": "text you type",
-        "out": "a reply from a language model running on your own GPU",
-        "not": { "tool": "blog", "why": "writes to a repository and publishes; this one keeps conversations in this browser and sends them nowhere" }
-      },
-      "state": "early",
-      "limits": "Needs WebGPU. Model weights are downloaded on first use. Conversations are saved in this browser's localStorage. No gate table yet.",
-      "gates": null,
-      "kind": "artifact",
       "egress": "none",
-      "fetches": ["code:cdnjs", "code:jsdelivr", "code:esm-run", "code:github-raw", "weights:huggingface"],
+      "fetches": [
+        "input-urls:user-named"
+      ],
+      "fetches_optional": [
+        "code:esm-run",
+        "weights:huggingface"
+      ],
+      "deterministic": "verified",
+      "params": [
+        {
+          "name": "character",
+          "required": true,
+          "repeatable": false,
+          "description": "URL of the character (FBX, GLB, VRM)."
+        },
+        {
+          "name": "motion",
+          "required": true,
+          "repeatable": true,
+          "description": "URL of a BVH or face-record JSON; repeat for several tracks."
+        },
+        {
+          "name": "map",
+          "required": false,
+          "repeatable": false,
+          "description": "URL of a flat bone-map JSON."
+        },
+        {
+          "name": "args",
+          "required": false,
+          "repeatable": false,
+          "description": "Raw bake flags, e.g. \"--fps 24 --trim 2:10\"."
+        },
+        {
+          "name": "run",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "bake"
+          ],
+          "description": "Start the op as soon as the page loads."
+        }
+      ],
+      "result": {
+        "handle": "window.__webcli_result",
+        "shape": "{ ok, op: 'bake', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { tracks, frames, fps, mapped, bones, units, blendshapes } }"
+      },
+      "testids": [
+        "character-input",
+        "motion-input",
+        "bake",
+        "command",
+        "run",
+        "result",
+        "download"
+      ],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "rig-webCLI",
+      "version": "0.1.0",
+      "live": "https://rig.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/rig-webCLI",
+      "licence": "GPL-3.0",
+      "agent": true,
+      "boundary": "No uploads, no servers: everything happens in your browser.",
+      "measured": "partial",
+      "page": "/#tool-rig",
+      "name": "rig",
+      "repository": "tejaswigowda/rig-webCLI",
+      "origin": "https://rig.webcli.app/",
+      "subdomain": "rig.webcli.app",
+      "output_kind": "artifact"
+    },
+    {
+      "name": "rtc",
+      "group": "calls",
+      "line": {
+        "in": "an invite link, plus camera, microphone or screen when you choose to share them",
+        "out": "a live peer-to-peer call; no file or artifact",
+        "not": {
+          "tool": "chess",
+          "why": "exchanges signed game moves and offers; rtc sends live media between participants"
+        }
+      },
+      "state": "early",
+      "limits": "v0.3.0 (protocol 3) has not yet been run on real devices. The latest recorded device run was on v0.2.0: two runs passed and one failed on one home Wi-Fi network.",
+      "gates": null,
+      "egress": "user-initiated media to peers; signaling through relays and STUN",
+      "fetches": [
+        "relays:public-nostr",
+        "stun:stun.cloudflare.com"
+      ],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "agent": false,
       "params": [],
       "result": null,
       "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "rtc-webCLI",
+      "version": "0.3.0",
+      "live": "https://tejaswigowda.com/rtc-webCLI/",
+      "repo": "https://github.com/tejaswigowda/rtc-webCLI",
+      "licence": "GPL-3.0-only",
+      "agent": false,
+      "boundary": "A call has to send. Your media goes to the other people in the room, and the introduction relays and a STUN server are contacted to set that up.",
+      "measured": "partial",
+      "page": "/#tool-rtc",
+      "repository": "tejaswigowda/rtc-webCLI",
+      "origin": "https://tejaswigowda.com/rtc-webCLI/",
+      "subdomain": "tejaswigowda.com"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/whisper.jpg",
+        "alt": "whisper-webCLI: audio transcription and subtitle controls."
+      },
+      "group": "video-audio",
+      "line": {
+        "in": "an audio or video file from your device",
+        "out": "a transcript as text, SRT or WebVTT",
+        "not": {
+          "tool": "dub",
+          "why": "goes the other way, from subtitles to speech"
+        }
+      },
+      "state": "early",
+      "limits": "No gate table yet and no run= surface. The Whisper model is downloaded on first use.",
+      "gates": null,
+      "egress": "none",
+      "fetches": [
+        "code:cdnjs",
+        "code:jsdelivr",
+        "weights:huggingface"
+      ],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "whisper-webCLI",
+      "version": "unversioned",
+      "live": "https://tejaswigowda.com/whisper-webCLI/",
+      "repo": "https://github.com/tejaswigowda/whisper-webCLI",
       "licence": "GPL-3.0",
-      "source_status": "public"
+      "agent": false,
+      "boundary": "No uploads, no servers. All processing happens locally in your browser using Transformers.js and ONNX models.",
+      "measured": "partial",
+      "page": "/#tool-whisper",
+      "name": "whisper",
+      "repository": "tejaswigowda/whisper-webCLI",
+      "origin": "https://tejaswigowda.com/whisper-webCLI/",
+      "subdomain": "tejaswigowda.com",
+      "output_kind": "artifact"
+    }
+  ],
+  "libraries": [
+    {
+      "name": "3DOM",
+      "description": "A library for addressing and editing three.js scenes with CSS-like selectors, deterministic auto-labelling and undoable operations. It has no standalone tool UI or command surface.",
+      "kind": "library",
+      "id": "3DOM",
+      "version": "1.0.0",
+      "live": "none",
+      "repo": "https://github.com/tejaswigowda/3dom",
+      "licence": "MIT",
+      "agent": false,
+      "boundary": "No editor. No framework. No build step required. Just three.js (a peer dependency) and this.",
+      "measured": "pending",
+      "page": "/#library-3DOM"
+    },
+    {
+      "name": "only-connect",
+      "description": "Shared browser-to-browser room transport used by drop, chess and rtc. Library only: it has no UI or command surface.",
+      "kind": "library",
+      "id": "only-connect",
+      "version": "0.1.0",
+      "live": "none",
+      "repo": "https://github.com/tejaswigowda/only-connect.js",
+      "licence": "GPL-3.0-only",
+      "agent": false,
+      "boundary": "Guest Wi-Fi, classroom and institutional networks that isolate clients will still defeat a direct WebRTC connection. only-connect is the vehicle, not the cure.",
+      "measured": "partial",
+      "page": "/#library-only-connect"
     }
   ]
 }

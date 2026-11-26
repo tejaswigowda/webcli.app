@@ -10,6 +10,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { ROOT } from './lib.mjs';
+import { writeManifest } from './manifest.mjs';
 import { writePages } from './render.mjs';
 
 const FONT_AWESOME_LINK = /<link rel="stylesheet" href="https:\/\/cdnjs\.cloudflare\.com\/ajax\/libs\/font-awesome\/[^"]+"[^>]*>\n?/g;
@@ -44,21 +45,42 @@ export function thirdPartyReferences(html) {
   return found;
 }
 
+export function shareImage() {
+  const blog = JSON.parse(readFileSync(path.join(ROOT, 'blog.json'), 'utf8'));
+  const lock = JSON.parse(readFileSync(path.join(ROOT, 'assets.lock.json'), 'utf8'));
+  if (blog.cover !== 'asset:images/og.png' || blog.assets?.repos?.images !== 'tejaswigowda/webcli.app/images' || blog.assets?.base !== 'https://raw.githubusercontent.com/{owner}/{repo}/{sha}/{path}') {
+    throw new Error('share image mapping changed; update the first-party snapshot mapping');
+  }
+  const sha = lock['images/og.png'];
+  if (!/^[0-9a-f]{40}$/.test(sha || '')) throw new Error('share image has no valid commit pin');
+  const snapshot = `share/${sha}/images/og.png`;
+  if (!existsSync(path.join(ROOT, snapshot))) throw new Error(`missing immutable share image snapshot: ${snapshot}`);
+  return {
+    source: `https://raw.githubusercontent.com/tejaswigowda/webcli.app/${sha}/images/og.png`,
+    destination: `https://webcli.app/${snapshot}`,
+  };
+}
+
 export function build() {
+  writeManifest();
   writePages();
   const generator = process.env.BLOG_WEBCLI || path.join(ROOT, '.blog-webcli');
   if (!existsSync(path.join(generator, 'cli/blog.js'))) throw new Error(`blog-webCLI not found at ${generator} (set BLOG_WEBCLI)`);
   const r = spawnSync('node', [path.join(generator, 'cli/blog.js'), 'build', ROOT], { stdio: 'inherit' });
   if (r.status !== 0) throw new Error('blog-webcli build failed');
+  const image = shareImage();
   let stripped = 0;
+  let images = 0;
   for (const f of generatedHtml()) {
     const html = readFileSync(f, 'utf8');
-    const next = html.replace(FONT_AWESOME_LINK, '');
+    const next = html.replace(FONT_AWESOME_LINK, '').replaceAll(image.source, image.destination);
     if (next !== html) { writeFileSync(f, next); stripped++; }
+    if (html.includes(image.source)) images++;
   }
+  if (!images) throw new Error('no generated page referenced the pinned share image');
   const left = generatedHtml().flatMap((f) => thirdPartyReferences(readFileSync(f, 'utf8')).map((x) => `${path.relative(ROOT, f)}: ${x}`));
   if (left.length) throw new Error(`third-party references remain:\n  ${left.join('\n  ')}`);
-  console.log(`removed the Font Awesome link from ${stripped} page(s); no third-party reference remains`);
+  console.log(`processed ${stripped} page(s), rewrote the share image on ${images}; no third-party reference remains`);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -2,7 +2,7 @@
   "title": "webCLI",
   "description": "Twelve tools that run in a browser tab: what goes in, what comes out, what each one is not, and how far to trust it.",
   "author": "Tejaswi Gowda",
-  "domain": "http://webcli.app",
+  "domain": "https://webcli.app",
   "repo": "tejaswigowda/webcli.app",
   "theme": "default",
   "cover": "asset:images/og.png",

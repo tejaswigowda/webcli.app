@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://webcli.app/</id>
+  <title>webCLI</title>
+  <subtitle>Twelve tools that run in a browser tab: what goes in, what comes out, what each one is not, and how far to trust it.</subtitle>
+  <updated>1970-01-01T00:00:00Z</updated>
+  <link rel="alternate" type="text/html" href="https://webcli.app/"/>
+  <link rel="self" type="application/atom+xml" href="https://webcli.app/feed.xml"/>
+  <author><name>Tejaswi Gowda</name></author>
+  <generator>blog-webcli</generator>
+
+</feed>

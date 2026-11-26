@@ -1,21 +1,21 @@
 ---
 slug: home-after
-title: What all twelve share
+title: What the tools share
 status: published
 noindex: true
 ---
 
-## What all twelve share
+## What the tools share
 
-Stated once here, so it cannot drift across twelve READMEs. The left column is the claim; the right is what has been measured, and where nothing has been measured it says so.
+Stated once here, so it cannot drift across the family. The left column is the claim; the right is what has been measured, and where nothing has been measured it says so.
 
 | Claim | Measured today |
 | --- | --- |
-| A persistent egress ledger that reads zero | 12 of 12 made no non-GET request, sent no request body and made no request after the network was cut, from load to idle (2026-11-16). A representative operation is written for 0 of 12. |
-| connect-src 'none' once loaded | 0 of 12. 4 ship a Content-Security-Policy at all. |
+| A persistent egress ledger that reads zero | 11 of 14 made no non-GET request, sent no request body and made no request after the network was cut, from load to idle (2026-11-16). A representative operation is written for 0 of 14. |
+| connect-src 'none' once loaded | 0 of 14. 4 ship a Content-Security-Policy at all. |
 | No credentials reachable from a worker | Not measured. |
 | Refusals by name rather than silent approximation | Not measured across the family. |
-| An open licence | 11 of 12; the source of mocap is not public yet. |
+| An open licence | 14 of 14. |
 | Operates offline once loaded | Not measured. |
 
 **Two exceptions, and they are part of the claim.** Loading is egress: fetching the WebAssembly core and any model is a request, always a GET with no body, and each tool's `fetches` in [tools.json](tools.json) names what it fetches. Publishing is egress the user starts: [hls](https://hls.webcli.app/) and [blog](https://blog.webcli.app/) commit to a repository, and nothing is sent until you press Publish; [hls says so in its Privacy and Egress section](https://github.com/tejaswigowda/hls-webCLI#privacy--egress).
@@ -26,18 +26,20 @@ Each tool's origin was loaded in a fresh Chrome profile with the cache off, left
 
 | Tool | Requests at load | Hosts other than its own | Non-GET | Body bytes | After the cut |
 | --- | --- | --- | --- | --- | --- |
-| ffmpeg | 15 | cdn.jsdelivr.net, cdnjs.cloudflare.com | 0 | 0 | 0 |
-| hls | 22 | none | 0 | 0 | 0 |
-| whisper | 12 | cdn.jsdelivr.net, cdnjs.cloudflare.com | 0 | 0 | 0 |
-| dub | 7 | none | 0 | 0 | 0 |
 | 3mf | 16 | cdn.jsdelivr.net, cdnjs.cloudflare.com | 0 | 0 | 0 |
-| mocap | 26 | none | 0 | 0 | 0 |
-| rig | 31 | none | 0 | 0 | 0 |
-| magick | 11 | cdnjs.cloudflare.com | 0 | 0 | 0 |
-| look | 15 | none | 0 | 0 | 0 |
-| portrait | 38 | none | 0 | 0 | 0 |
 | blog | 103 | none | 0 | 0 | 0 |
 | chat | 8 | cdn.jsdelivr.net, cdnjs.cloudflare.com, esm.run | 0 | 0 | 0 |
+| chess | not measured yet | — | — | — | — |
+| drop | not measured yet | — | — | — | — |
+| dub | 7 | none | 0 | 0 | 0 |
+| ffmpeg | 15 | cdn.jsdelivr.net, cdnjs.cloudflare.com | 0 | 0 | 0 |
+| hls | 22 | none | 0 | 0 | 0 |
+| look | 15 | none | 0 | 0 | 0 |
+| magick | 11 | cdnjs.cloudflare.com | 0 | 0 | 0 |
+| portrait | 38 | none | 0 | 0 | 0 |
+| rig | 31 | none | 0 | 0 | 0 |
+| rtc | not measured yet | — | — | — | — |
+| whisper | 12 | cdn.jsdelivr.net, cdnjs.cloudflare.com | 0 | 0 | 0 |
 
 ## Measured on this page
 
@@ -49,14 +51,14 @@ Method: blog-webCLI's cli/speed.mjs in headless Chrome: Slow 4G (1.6 Mbit/s down
 
 <h2 id="agents">For agents and scripts</h2>
 
-The tools are meant to be driven by a URL and to return an artifact; 3 of 12 (rig, look, portrait) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
+The tools are meant to be driven by a URL and to return an artifact; 3 of 14 (look, portrait, rig) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
 
 ```bash
 curl -s https://webcli.app/tools.json
 curl -s https://webcli.app/tools.json | jq -r '.tools[] | select(.agent) | .origin'
 ```
 
-The machine-readable index carries schema 3. A breaking change bumps that number; each entry declares its origin, state, inputs, outputs, egress, fetches and agent surface.
+The machine-readable index carries schema 4. A breaking change bumps that number; each entry declares its origin, state, inputs, outputs, egress, fetches and agent surface.
 
 <h2 id="privacy">Privacy and licences</h2>
 
@@ -69,19 +71,23 @@ Processing happens on your device. Loading can fetch code, models and input URLs
 
 ### Licences
 
-- `ffmpeg`: GPL-3.0
-- `hls`: GPL-3.0
-- `whisper`: GPL-3.0
-- `dub`: GPL-3.0
-- `3mf`: GPL-3.0
-- `mocap`: unpublished (source private)
-- `rig`: GPL-3.0
-- `magick`: Apache-2.0
-- `look`: GPL-3.0
-- `portrait`: GPL-3.0
-- `blog`: GPL-3.0 (tool), MIT (runtime)
-- `chat`: GPL-3.0
+- `3mf` (tool): GPL-3.0
+- `blog` (tool): GPL-3.0 (tool), MIT (runtime)
+- `chat` (tool): GPL-3.0
+- `chess` (tool): GPL-3.0-only
+- `drop` (tool): GPL-3.0-only
+- `dub` (tool): GPL-3.0
+- `ffmpeg` (tool): GPL-3.0
+- `hls` (tool): GPL-3.0
+- `look` (tool): GPL-3.0
+- `magick` (tool): Apache-2.0
+- `portrait` (tool): GPL-3.0
+- `rig` (tool): GPL-3.0
+- `rtc` (tool): GPL-3.0-only
+- `whisper` (tool): GPL-3.0
+- `3DOM` (library): MIT
+- `only-connect` (library): GPL-3.0-only
 
 Vendored components keep their own notices.
 
-{.small} Index updated 2026-11-15. [tools.json](/tools.json) · [the paper (arXiv)](https://arxiv.org/abs/2608.28950)
+{.small} Index updated 2026-11-25. [tools.json](/tools.json) · [the paper (arXiv)](https://arxiv.org/abs/2608.28950)

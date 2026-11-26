@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: http://webcli.app/sitemap.xml
+Sitemap: https://webcli.app/sitemap.xml

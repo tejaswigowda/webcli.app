@@ -2,16 +2,50 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
-import { thirdPartyReferences } from '../scripts/build.mjs';
+import { shareImage, thirdPartyReferences } from '../scripts/build.mjs';
 import { ROOT, line, readJson, similarity, validate } from '../scripts/lib.mjs';
+import { parseToolPage, readToolPages, validateToolPage } from '../scripts/manifest.mjs';
 import { renderHome } from '../scripts/render.mjs';
 
 const data = readJson('tools.json');
 const page = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 
-test('I3, I5: twelve tools, each in a group, with three clauses and a state', () => {
-  assert.equal(data.tools.length, 12);
+test('I3, I5, I16, I18: tools and libraries are separated and fully described', () => {
+  assert.equal(data.tools.length, 14);
+  assert.equal(data.libraries.length, 2);
+  assert.ok(data.tools.every((entry) => entry.kind === 'tool'));
+  assert.ok(data.libraries.every((entry) => entry.kind === 'library'));
+  assert.deepEqual(data.libraries.map((entry) => entry.id).sort(), ['3DOM', 'only-connect']);
   assert.deepEqual(validate(data), []);
+});
+
+test('I14, I15: each manifest entry comes from a complete, named frontmatter page', () => {
+  const entries = readToolPages();
+  assert.equal(entries.length, data.tools.length + data.libraries.length);
+  for (const entry of [...data.tools, ...data.libraries]) {
+    assert.ok(entries.some((source) => source.id === entry.id && source.kind === entry.kind));
+    assert.ok(entry.page);
+    assert.ok(entry.version);
+    assert.ok(entry.live === 'none' || entry.live.startsWith('https://'));
+    assert.ok(entry.licence);
+    assert.ok(entry.boundary);
+    assert.ok(['measured', 'partial', 'pending'].includes(entry.measured));
+  }
+  const source = readFileSync(path.join(ROOT, 'tool-pages/tool-drop-webCLI.md'), 'utf8');
+  const incomplete = parseToolPage('tool-drop-webCLI.md', source);
+  delete incomplete.licence;
+  assert.ok(validateToolPage(incomplete, 'tool-drop-webCLI.md').some((problem) => problem.includes('tool-drop-webCLI.md') && problem.includes('"licence"')));
+});
+
+test('I14, I17: both JSON surfaces and the current schema are generated for schema 4', () => {
+  const wellKnown = readJson('.well-known/webcli.json');
+  const schema = readJson('schema/4.json');
+  assert.equal(data.schema, 4);
+  assert.equal(wellKnown.schema, data.schema);
+  assert.deepEqual(wellKnown.tools, data.tools);
+  assert.deepEqual(wellKnown.libraries, data.libraries);
+  assert.equal(schema.$id, 'https://webcli.app/schema/4.json');
+  assert.equal(schema.properties.schema.const, 4);
 });
 
 test('I4: no two lines are substitutable', () => {
@@ -36,8 +70,11 @@ test('the old navigation, tool cards and example are restored without browser re
     assert.ok(html.includes(`id="${id}"`), `missing section ${id}`);
   }
   assert.equal((html.match(/<article class="tool"/g) || []).length, data.tools.length);
+  assert.equal((html.match(/<article class="library"/g) || []).length, data.libraries.length);
   for (const t of data.tools) {
     assert.ok(html.includes(`id="tool-${t.name}"`));
+    assert.ok(html.includes(`version</dt><dd>${t.version}</dd>`), `${t.name} has no visible version`);
+    assert.ok(html.includes(`Boundary:</strong> ${t.boundary}`), `${t.name} has no visible boundary`);
     if (t.thumb) {
       assert.ok(existsSync(path.join(ROOT, t.thumb.src)), `missing ${t.thumb.src}`);
       assert.ok(html.includes(`src="/${t.thumb.src}"`));
@@ -48,7 +85,10 @@ test('the old navigation, tool cards and example are restored without browser re
     assert.ok(html.includes(`src="/${shot.src}"`));
   }
   assert.ok(html.includes('Historical measurement'));
-  assert.ok(html.includes('schema 3'));
+  assert.ok(html.includes('schema 4'));
+  assert.ok(html.includes('itself built with <a href="https://blog.webcli.app/'));
+  assert.ok(html.includes('https://github.com/tejaswigowda/webcli.app'));
+  assert.ok(html.includes('drop, chess and rtc share <a href="https://github.com/tejaswigowda/only-connect.js#this-does-not-fix-client-isolated-networks"'));
 });
 
 test('tool-card data is HTML-escaped, not interpreted as markup', () => {
@@ -78,7 +118,14 @@ test('I1, I12: the built pages reference nothing third-party and carry no script
 
 test('I12: the front page unfurls', () => {
   const html = page('index.html');
-  assert.match(html, /<meta property="og:image" content="https:\/\/[^"]+\/images\/og\.png">/);
+  const image = shareImage();
+  assert.deepEqual(readFileSync(path.join(ROOT, new URL(image.destination).pathname)), readFileSync(path.join(ROOT, 'images/og.png')));
+  for (const f of ['index.html', 'home/index.html', 'home-after/index.html']) {
+    const result = page(f);
+    assert.ok(result.includes(`<meta property="og:image" content="${image.destination}">`), f);
+    assert.ok(result.includes(`<meta name="twitter:image" content="${image.destination}">`), f);
+    assert.ok(!result.includes(image.source), f);
+  }
   assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
   assert.match(html, /<link rel="canonical" href="https:\/\/webcli\.app\/">/);
   for (const t of data.tools) assert.ok(html.includes(t.origin), `${t.name} is not linked`);
@@ -87,9 +134,10 @@ test('I12: the front page unfurls', () => {
 test('I8, I9: the page quotes the ledger and the speed measurement it was built from', () => {
   const ledger = readJson('ledger.json');
   const measure = readJson('measure.json');
-  assert.equal(Object.keys(ledger.tools).length, data.tools.length);
+  assert.ok(Object.keys(ledger.tools).length <= data.tools.length);
   const after = page('pages/home-after.md');
   assert.ok(after.includes(`**${measure.js_files} JavaScript files**`));
   assert.ok(after.includes(`${measure.lcp_ms} ms`));
   assert.ok(after.includes(ledger.method));
+  assert.ok(after.includes('not measured yet'));
 });
