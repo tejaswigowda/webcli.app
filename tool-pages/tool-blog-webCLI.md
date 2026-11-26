@@ -9,7 +9,7 @@ version: "0.5.1"
 live: "https://blog.webcli.app/"
 repo: "https://github.com/tejaswigowda/blog-webCLI"
 licence: "GPL-3.0 (tool), MIT (runtime)"
-agent: false
+agent: true
 boundary: "No application server or per-site deployment is required."
 measured: partial
 details: |
@@ -30,9 +30,43 @@ details: |
     "fetches": null,
     "fetches_optional": [],
     "deterministic": "unverified",
-    "params": [],
-    "result": null,
-    "testids": [],
+    "params": [
+      {
+        "name": "markdown",
+        "required": false,
+        "repeatable": false,
+        "description": "Inline Markdown text to render; used when src is omitted."
+      },
+      {
+        "name": "src",
+        "required": false,
+        "repeatable": false,
+        "description": "HTTP(S), data or blob URL for Markdown input."
+      },
+      {
+        "name": "run",
+        "required": true,
+        "repeatable": false,
+        "values": ["render"],
+        "description": "Render Markdown to HTML without a click."
+      },
+      {
+        "name": "format",
+        "required": false,
+        "repeatable": false,
+        "values": ["HTML"],
+        "description": "The only supported output format."
+      },
+      {
+        "name": "download",
+        "required": false,
+        "repeatable": false,
+        "values": ["1"],
+        "description": "Download the rendered HTML automatically."
+      }
+    ],
+    "result": "window.__webcli_result = { ok, op: 'render', artifact: { mime: 'text/html', name, size, dataUrl } | null, error: string | null, meta }",
+    "testids": ["run", "download", "result", "status"],
     "source_status": "public",
     "kind": "artifact"
   }
