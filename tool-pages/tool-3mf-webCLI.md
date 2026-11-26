@@ -6,10 +6,10 @@ noindex: true
 kind: tool
 id: "3mf-webCLI"
 version: "0.1.0"
-live: "https://tejaswigowda.com/3mf-webCLI/"
+live: "https://3mf.webcli.app/"
 repo: "https://github.com/tejaswigowda/3mf-webCLI"
 licence: "GPL-3.0"
-agent: false
+agent: true
 boundary: "No uploads, no servers - all processing happens locally in your browser."
 measured: partial
 details: |
@@ -28,17 +28,49 @@ details: |
       }
     },
     "state": "early",
-    "limits": "GLB in, 3MF out, nothing else. No gate table yet and no run= surface.",
+    "limits": "GLB input only. URL runs export 3MF; the interactive editor can also export segmented GLB. No gate table yet.",
     "gates": null,
     "egress": "none",
     "fetches": [
       "code:cdnjs",
-      "code:jsdelivr"
+      "code:jsdelivr",
+      "input-urls:user-named"
     ],
     "fetches_optional": [],
     "deterministic": "unverified",
-    "params": [],
-    "result": null,
+    "params": [
+      {
+        "name": "src",
+        "required": true,
+        "repeatable": false,
+        "description": "GLB URL to load with a credential-free GET."
+      },
+      {
+        "name": "run",
+        "required": true,
+        "repeatable": false,
+        "values": ["convert"],
+        "description": "Segment and export 3MF without a click."
+      },
+      {
+        "name": "materials",
+        "required": false,
+        "repeatable": false,
+        "values": ["2", "3", "4", "5", "6", "7", "8"],
+        "description": "Fixed material count; omitted for auto-detection."
+      },
+      {
+        "name": "download",
+        "required": false,
+        "repeatable": false,
+        "values": ["1"],
+        "description": "Also download the generated 3MF."
+      }
+    ],
+    "result": {
+      "handle": "window.__webcli_result",
+      "shape": "{ ok, op: 'convert', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { tool, materials } }"
+    },
     "testids": [],
     "source_status": "public",
     "kind": "artifact"
