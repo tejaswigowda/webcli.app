@@ -363,9 +363,57 @@
       ],
       "fetches_optional": [],
       "deterministic": "verified",
-      "params": [],
-      "result": null,
-      "testids": [],
+      "params": [
+        {
+          "name": "run",
+          "required": true,
+          "repeatable": false,
+          "values": [
+            "analyze"
+          ],
+          "description": "Load a PGN or FEN into the local analysis board."
+        },
+        {
+          "name": "pgn",
+          "required": false,
+          "repeatable": false,
+          "description": "PGN to validate and replay locally; mutually exclusive with fen."
+        },
+        {
+          "name": "fen",
+          "required": false,
+          "repeatable": false,
+          "description": "FEN position to validate and open; mutually exclusive with pgn."
+        },
+        {
+          "name": "format",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "PGN",
+            "FEN"
+          ],
+          "description": "Output artifact format; PGN by default."
+        },
+        {
+          "name": "download",
+          "required": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ],
+          "description": "Download the resulting artifact automatically."
+        }
+      ],
+      "result": "window.__webcli_result = { ok, op: 'analyze', artifact: { mime, name, size, dataUrl } | null, error: string | null, meta: { tool, fen, ply, format } }",
+      "testids": [
+        "board",
+        "status",
+        "movesOut",
+        "btnPgn",
+        "btnFen",
+        "btnDownload"
+      ],
       "source_status": "public",
       "kind": "tool",
       "id": "chess-webCLI",
@@ -373,7 +421,7 @@
       "live": "https://chess.webcli.app/",
       "repo": "https://github.com/tejaswigowda/chess-webCLI",
       "licence": "GPL-3.0-only",
-      "agent": false,
+      "agent": true,
       "boundary": "On-device games are zero-egress. Rooms cannot be, because moves have to reach the other player; every request is declared and checkable in DevTools instead.",
       "measured": "partial",
       "page": "/#tool-chess",
