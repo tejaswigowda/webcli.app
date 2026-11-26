@@ -11,7 +11,7 @@ const data = readJson('tools.json');
 const page = (f) => readFileSync(path.join(ROOT, f), 'utf8');
 
 test('I3, I5, I16, I18: tools and libraries are separated and fully described', () => {
-  assert.equal(data.tools.length, 14);
+  assert.equal(data.tools.length, 15);
   assert.equal(data.libraries.length, 2);
   assert.ok(data.tools.every((entry) => entry.kind === 'tool'));
   assert.ok(data.libraries.every((entry) => entry.kind === 'library'));

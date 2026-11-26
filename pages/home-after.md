@@ -11,11 +11,11 @@ Stated once here, so it cannot drift across the family. The left column is the c
 
 | Claim | Measured today |
 | --- | --- |
-| A persistent egress ledger that reads zero | 11 of 14 made no non-GET request, sent no request body and made no request after the network was cut, from load to idle (2026-11-16). A representative operation is written for 0 of 14. |
-| connect-src 'none' once loaded | 0 of 14. 4 ship a Content-Security-Policy at all. |
+| A persistent egress ledger that reads zero | 11 of 15 made no non-GET request, sent no request body and made no request after the network was cut, from load to idle (2026-11-16). A representative operation is written for 0 of 15. |
+| connect-src 'none' once loaded | 0 of 15. 4 ship a Content-Security-Policy at all. |
 | No credentials reachable from a worker | Not measured. |
 | Refusals by name rather than silent approximation | Not measured across the family. |
-| An open licence | 14 of 14. |
+| An open licence | 15 of 15. |
 | Operates offline once loaded | Not measured. |
 
 **Two exceptions, and they are part of the claim.** Loading is egress: fetching the WebAssembly core and any model is a request, always a GET with no body, and each tool's `fetches` in [tools.json](tools.json) names what it fetches. Publishing is egress the user starts: [hls](https://hls.webcli.app/) and [blog](https://blog.webcli.app/) commit to a repository, and nothing is sent until you press Publish; [hls says so in its Privacy and Egress section](https://github.com/tejaswigowda/hls-webCLI#privacy--egress).
@@ -39,6 +39,7 @@ Each tool's origin was loaded in a fresh Chrome profile with the cache off, left
 | portrait | 38 | none | 0 | 0 | 0 |
 | rig | 31 | none | 0 | 0 | 0 |
 | rtc | not measured yet | — | — | — | — |
+| video | not measured yet | — | — | — | — |
 | whisper | 12 | cdn.jsdelivr.net, cdnjs.cloudflare.com | 0 | 0 | 0 |
 
 ## Measured on this page
@@ -51,7 +52,7 @@ Method: blog-webCLI's cli/speed.mjs in headless Chrome: Slow 4G (1.6 Mbit/s down
 
 <h2 id="agents">For agents and scripts</h2>
 
-The tools are meant to be driven by a URL and to return an artifact; 5 of 14 (3mf, look, magick, portrait, rig) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
+The tools are meant to be driven by a URL and to return an artifact; 6 of 15 (3mf, chat, look, magick, portrait, rig) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
 
 ```bash
 curl -s https://webcli.app/tools.json
@@ -84,6 +85,7 @@ Processing happens on your device. Loading can fetch code, models and input URLs
 - `portrait` (tool): GPL-3.0
 - `rig` (tool): GPL-3.0
 - `rtc` (tool): GPL-3.0-only
+- `video` (tool): UNLICENSED
 - `whisper` (tool): GPL-3.0
 - `3DOM` (library): MIT
 - `only-connect` (library): GPL-3.0-only

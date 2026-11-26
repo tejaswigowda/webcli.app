@@ -239,24 +239,60 @@
       ],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "params": [],
-      "result": null,
-      "testids": [],
+      "params": [
+        {
+          "name": "prompt",
+          "required": true,
+          "repeatable": false,
+          "description": "The text prompt sent to the locally running model."
+        },
+        {
+          "name": "run",
+          "required": true,
+          "repeatable": false,
+          "values": [
+            "chat"
+          ],
+          "description": "Run an on-device chat completion without a click."
+        },
+        {
+          "name": "model",
+          "required": false,
+          "repeatable": false,
+          "description": "One of the WebLLM model IDs offered by the app."
+        },
+        {
+          "name": "temperature",
+          "required": false,
+          "repeatable": false,
+          "description": "Number from 0 to 2; 0.7 by default."
+        }
+      ],
+      "result": "window.__webcli_result = { ok, op: 'chat', artifact: { mime: 'text/plain', name, size, dataUrl } | null, error: string | null, meta }",
+      "testids": [
+        "model-select",
+        "load-btn",
+        "send-btn",
+        "user-input",
+        "chat-window",
+        "status-text",
+        "result"
+      ],
       "source_status": "public",
       "kind": "tool",
       "id": "chat-webCLI",
       "version": "unversioned",
-      "live": "https://tejaswigowda.com/chat-webCLI/",
+      "live": "https://chat.webcli.app/",
       "repo": "https://github.com/tejaswigowda/chat-webCLI",
       "licence": "GPL-3.0",
-      "agent": false,
+      "agent": true,
       "boundary": "A browser-based LLM chat app that runs large language models entirely in your browser using WebLLM and WebGPU - no server, no API keys, no data leaves your device.",
       "measured": "partial",
       "page": "/#tool-chat",
       "name": "chat",
       "repository": "tejaswigowda/chat-webCLI",
-      "origin": "https://tejaswigowda.com/chat-webCLI/",
-      "subdomain": "tejaswigowda.com",
+      "origin": "https://chat.webcli.app/",
+      "subdomain": "chat.webcli.app",
       "output_kind": "artifact"
     },
     {
@@ -861,6 +897,54 @@
       "repository": "tejaswigowda/rtc-webCLI",
       "origin": "https://tejaswigowda.com/rtc-webCLI/",
       "subdomain": "tejaswigowda.com"
+    },
+    {
+      "thumb": {
+        "src": "shots/thumbs/video.jpg",
+        "alt": "video-webCLI: media library, preview, timeline and export controls."
+      },
+      "group": "video-audio",
+      "line": {
+        "in": "screen, camera, microphone or existing video clips",
+        "out": "an edited MP4 with mixed audio and optional burned or selectable captions",
+        "not": {
+          "tool": "ffmpeg",
+          "why": "records and assembles an editing timeline; ffmpeg transforms media files you already have"
+        }
+      },
+      "state": "early",
+      "limits": "Capture is an explicit browser permission. Export determinism is not guaranteed across browser builds or hardware. No run= surface yet.",
+      "gates": null,
+      "egress": "none",
+      "fetches": [],
+      "fetches_optional": [],
+      "deterministic": "unverified",
+      "params": [],
+      "result": null,
+      "testids": [
+        "media-input",
+        "start-button",
+        "stop-button",
+        "preview",
+        "timeline-clips",
+        "export-mp4"
+      ],
+      "source_status": "public",
+      "kind": "tool",
+      "id": "video-webCLI",
+      "version": "0.1.0",
+      "live": "https://video.webcli.app/",
+      "repo": "https://github.com/tejaswigowda/video-webCLI",
+      "licence": "UNLICENSED",
+      "agent": false,
+      "boundary": "A local-first iMovie-style editor that records, trims, captions and exports video without uploading it.",
+      "measured": "partial",
+      "page": "/#tool-video",
+      "name": "video",
+      "repository": "tejaswigowda/video-webCLI",
+      "origin": "https://video.webcli.app/",
+      "subdomain": "video.webcli.app",
+      "output_kind": "artifact"
     },
     {
       "thumb": {

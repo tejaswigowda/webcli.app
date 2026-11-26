@@ -6,10 +6,10 @@ noindex: true
 kind: tool
 id: "chat-webCLI"
 version: "unversioned"
-live: "https://tejaswigowda.com/chat-webCLI/"
+live: "https://chat.webcli.app/"
 repo: "https://github.com/tejaswigowda/chat-webCLI"
 licence: "GPL-3.0"
-agent: false
+agent: true
 boundary: "A browser-based LLM chat app that runs large language models entirely in your browser using WebLLM and WebGPU - no server, no API keys, no data leaves your device."
 measured: partial
 details: |
@@ -40,9 +40,35 @@ details: |
     ],
     "fetches_optional": [],
     "deterministic": "unverified",
-    "params": [],
-    "result": null,
-    "testids": [],
+    "params": [
+      {
+        "name": "prompt",
+        "required": true,
+        "repeatable": false,
+        "description": "The text prompt sent to the locally running model."
+      },
+      {
+        "name": "run",
+        "required": true,
+        "repeatable": false,
+        "values": ["chat"],
+        "description": "Run an on-device chat completion without a click."
+      },
+      {
+        "name": "model",
+        "required": false,
+        "repeatable": false,
+        "description": "One of the WebLLM model IDs offered by the app."
+      },
+      {
+        "name": "temperature",
+        "required": false,
+        "repeatable": false,
+        "description": "Number from 0 to 2; 0.7 by default."
+      }
+    ],
+    "result": "window.__webcli_result = { ok, op: 'chat', artifact: { mime: 'text/plain', name, size, dataUrl } | null, error: string | null, meta }",
+    "testids": ["model-select", "load-btn", "send-btn", "user-input", "chat-window", "status-text", "result"],
     "source_status": "public",
     "kind": "artifact"
   }
