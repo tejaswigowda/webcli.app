@@ -52,7 +52,7 @@ Method: blog-webCLI's cli/speed.mjs in headless Chrome: Slow 4G (1.6 Mbit/s down
 
 <h2 id="agents">For agents and scripts</h2>
 
-The tools are meant to be driven by a URL and to return an artifact; 9 of 15 (3mf, blog, chat, chess, drop, look, magick, portrait, rig) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
+The tools are meant to be driven by a URL and to return an artifact; 10 of 15 (3mf, blog, chat, chess, drop, dub, look, magick, portrait, rig) have the `run=` surface today. [tools.json](tools.json) is the machine-readable index of this page: for each tool its origin, what it fetches and, where it has one, that surface (parameters, `window.__webcli_result`, test ids). Nothing here needs an account; the two tools that publish are the exception stated above.
 
 ```bash
 curl -s https://webcli.app/tools.json
