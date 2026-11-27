@@ -43,7 +43,10 @@ details: |
         "description": "Create a time-limited room invite locally without joining a room or contacting the network."
       }
     ],
-    "result": "window.__webcli_result = { ok, op: 'invite', artifact: { mime: 'text/plain', name, size, dataUrl } | null, error: string | null, meta: { tool, inviteUrl, expiresAt, roomJoined, network } }",
+    "result": {
+      "handle": "window.__webcli_result",
+      "shape": "{ ok, op: 'invite', artifact: { mime: 'text/plain', name, size, dataUrl } | null, error: string | null, meta: { tool, inviteUrl, expiresAt, roomJoined, network } }"
+    },
     "testids": ["runPanel", "runInvite", "copyRunInvite", "runInviteOpen"],
     "source_status": "public"
   }
