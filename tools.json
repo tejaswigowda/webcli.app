@@ -441,26 +441,41 @@
         }
       },
       "state": "early",
-      "limits": "v0.2.8 is functional for current desktop testing. Browser-size ceilings, throughput and the wider device matrix are pending.",
+      "limits": "v0.3.0 adds local invite generation through #run=invite. It does not join a room or contact the network; browser-size ceilings, throughput and the wider device matrix are pending.",
       "gates": null,
-      "egress": "user-initiated peer transfer",
+      "egress": "local invite generation; user-initiated peer transfer",
       "fetches": [
         "signaling:public-nostr-relays",
         "stun:stun.cloudflare.com"
       ],
       "fetches_optional": [],
       "deterministic": "unverified",
-      "params": [],
-      "result": null,
-      "testids": [],
+      "params": [
+        {
+          "name": "run",
+          "required": true,
+          "repeatable": false,
+          "values": [
+            "invite"
+          ],
+          "description": "Create a time-limited room invite locally without joining a room or contacting the network."
+        }
+      ],
+      "result": "window.__webcli_result = { ok, op: 'invite', artifact: { mime: 'text/plain', name, size, dataUrl } | null, error: string | null, meta: { tool, inviteUrl, expiresAt, roomJoined, network } }",
+      "testids": [
+        "runPanel",
+        "runInvite",
+        "copyRunInvite",
+        "runInviteOpen"
+      ],
       "source_status": "public",
       "kind": "tool",
       "id": "drop-webCLI",
-      "version": "0.2.8",
+      "version": "0.3.0",
       "live": "https://drop.webcli.app/",
       "repo": "https://github.com/tejaswigowda/drop-webCLI",
       "licence": "GPL-3.0-only",
-      "agent": false,
+      "agent": true,
       "boundary": "This is not storage, a cloud locker, a mailbox, or “AirDrop for the internet.” Both browsers must be open at the same time. There is no nearby discovery.",
       "measured": "partial",
       "page": "/#tool-drop",

@@ -26,7 +26,7 @@ Zero-egress is about your content, not about downloading the application. Each c
 
 ### The agent surface
 
-Implemented today by 3mf, blog, chat, chess, look, magick, portrait, rig (8 of 15 tools). The other tools do not have it yet.
+Implemented today by 3mf, blog, chat, chess, drop, look, magick, portrait, rig (9 of 15 tools). The other tools do not have it yet.
 
 - `run=` in the URL starts the operation where supported.
 - `window.__webcli_result` holds the result: `{ ok, op, artifact, error, meta }`.
@@ -77,7 +77,7 @@ const result = await page.evaluate(() => window.__webcli_result);
 
 ## File transfer
 
-<article class="tool" id="tool-drop"><h4><a href="https://drop.webcli.app/">drop</a> <span class="badge no">no run= yet</span> <span class="badge no">early</span></h4><dl><dt>version</dt><dd>0.2.8</dd><dt>live</dt><dd><a href="https://drop.webcli.app/">https://drop.webcli.app/</a></dd><dt>measurement</dt><dd>partially measured</dd><dt>in</dt><dd>one or more files or folders from your device</dd><dt>out</dt><dd>verified files exchanged with the people in a temporary room</dd><dt>not</dt><dd>box, which stores content for later; drop keeps both browsers present and transfers directly</dd><dt>egress</dt><dd>user-initiated peer transfer</dd><dt>fetches</dt><dd>signaling:public-nostr-relays, stun:stun.cloudflare.com</dd><dt>repro</dt><dd>not verified</dd></dl><p class="caveat">v0.2.8 is functional for current desktop testing. Browser-size ceilings, throughput and the wider device matrix are pending.</p><p class="boundary"><strong>Boundary:</strong> This is not storage, a cloud locker, a mailbox, or “AirDrop for the internet.” Both browsers must be open at the same time. There is no nearby discovery.</p><p class="meta"><a href="https://github.com/tejaswigowda/drop-webCLI">source</a> · GPL-3.0-only</p></article>
+<article class="tool" id="tool-drop"><h4><a href="https://drop.webcli.app/">drop</a> <span class="badge yes">run= yes</span> <span class="badge no">early</span></h4><dl><dt>version</dt><dd>0.3.0</dd><dt>live</dt><dd><a href="https://drop.webcli.app/">https://drop.webcli.app/</a></dd><dt>measurement</dt><dd>partially measured</dd><dt>in</dt><dd>one or more files or folders from your device</dd><dt>out</dt><dd>verified files exchanged with the people in a temporary room</dd><dt>not</dt><dd>box, which stores content for later; drop keeps both browsers present and transfers directly</dd><dt>egress</dt><dd>local invite generation; user-initiated peer transfer</dd><dt>fetches</dt><dd>signaling:public-nostr-relays, stun:stun.cloudflare.com</dd><dt>repro</dt><dd>not verified</dd><dt>params</dt><dd><code>run=invite</code></dd><dt>result</dt><dd><code>undefined = undefined</code></dd><dt>testids</dt><dd>runPanel, runInvite, copyRunInvite, runInviteOpen</dd></dl><p class="caveat">v0.3.0 adds local invite generation through #run=invite. It does not join a room or contact the network; browser-size ceilings, throughput and the wider device matrix are pending.</p><p class="boundary"><strong>Boundary:</strong> This is not storage, a cloud locker, a mailbox, or “AirDrop for the internet.” Both browsers must be open at the same time. There is no nearby discovery.</p><p class="meta"><a href="https://github.com/tejaswigowda/drop-webCLI">source</a> · GPL-3.0-only</p></article>
 
 ## Games
 
